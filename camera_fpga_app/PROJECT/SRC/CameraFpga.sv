@@ -4,9 +4,9 @@
 `include "TRDB_D5M.sv"
 
 module CameraFpga (
-    input logic         ul1FpgaClock,
-    input logic         ul1FpgaResetn,
-    tITRDB_D5M.driver   pIImageSensorDriver
+    input logic         piul1FpgaClock,
+    input logic         piul1FpgaResetn,
+    tITRDB_D5M.driver   pIImageSensor
     );
 
 
