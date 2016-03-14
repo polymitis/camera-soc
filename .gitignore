@@ -234,3 +234,9 @@ _Pvt_Extensions
 
 # FAKE - F# Make
 .fake/
+
+# Quartus
+db/
+incremental_db/
+output_files/
+.bak
