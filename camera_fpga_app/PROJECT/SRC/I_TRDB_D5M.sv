@@ -1,8 +1,7 @@
-// Project : camera_fpga_app
-// Author  : Petros Fountas
-// Details : TRDB_D5M daughter board definitions.
-`ifndef TRDB_D5M_SV
-`define TRDB_D5M_SV
+// Project   : Terasic TRDB_D5M daughter board
+// Details   : TRDB_D5M interface.
+`ifndef I_TRDB_D5M_SV
+`define I_TRDB_D5M_SV
 
 // TRDB_D5M interface
 interface tITRDB_D5M;
@@ -44,6 +43,6 @@ interface tITRDB_D5M;
         output ul1Scl
         ); 
         
-endinterface // tITRDB_D5M
+endinterface//tITRDB_D5M
 
-`endif//TRDB_D5M_SV
+`endif//I_TRDB_D5M_SV
