@@ -5,8 +5,8 @@
 
 module tMFrameBuffer_320x240  
 ( // Ports:
-    input  logic ul1Clock,
-    input  logic ul1WriteEnable,
+    input  logic piul1Clock,
+    input  logic piul1WriteEnable,
     input  logic [16:0] piul17WriteAddress, 
     input  logic [23:0] piul24WriteData, 
     input  logic [16:0] piul17ReadAddress, 
@@ -16,17 +16,17 @@ module tMFrameBuffer_320x240
     (* ramstyle = "M10K, no_rw_check" *) logic [23:0] aul24RamBuffer[0:76799];
     
     initial
-    begin
+    begin: RAM_initialisation_proc
         $readmemh("FrameBuffer_320x240.meminit", aul24RamBuffer);
-    end
+    end: RAM_initialisation_proc
     
     always_ff @ (posedge ul1Clock)
-    begin
+    begin: RAM_controller_proc
         if (ul1WriteEnable) 
             aul24RamBuffer[piul17WriteAddress] <= piul24WriteData;
         
         poul24ReadData <= aul24RamBuffer[piul17ReadAddress];
-    end
+    end: RAM_controller_proc
     
 endmodule : tMFrameBuffer_320x240
 

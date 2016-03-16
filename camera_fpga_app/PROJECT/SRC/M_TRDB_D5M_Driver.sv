@@ -4,14 +4,14 @@
 `define M_TRDB_D5M_DRIVER_SV
 
 `include "I_TRDB_D5M.sv"
-`include "I_ImageTransfer.sv"
+`include "I_FrameTransfer.sv"
 
 module tMTRDB_D5M_Driver 
 ( // Ports:
-    input logic             ul1Clock,
-    input logic             ul1Reset_n,
+    input logic             piul1Clock,
+    input logic             piul1Reset_n,
     tITRDB_D5M.driver       pIDriver,
-    tIImageTransfer.src     pIImageTransfer
+    tIFrameTransfer.src     pIFrameTransfer
 );  
     
     

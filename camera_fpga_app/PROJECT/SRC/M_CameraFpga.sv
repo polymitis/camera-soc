@@ -4,7 +4,7 @@
 `define M_CAMERAFPGA_SV
 
 `include "M_TRDB_D5M_Driver.sv"
-`include "M_ADV7123_Driver.sv"
+`include "M_VgaDriver.sv"
 `include "I_ImageTransfer.sv"
 
 module tMCameraFpga 
@@ -12,25 +12,28 @@ module tMCameraFpga
     input logic         piul1FpgaClock,
     input logic         piul1FpgaReset_n,
     tITRDB_D5M.driver   pIImageSensor,
-    tIADV7123.driver    pIDisplay
+    tIVgaDriver.driver  pIDisplayOut
 ); 
 
-    tIImageTransfer iIImageTransfer (
+    logic ul1PixelClock;
+
+    tIFrameTransfer iIFrameTransfer (
         .ul1Clock(piul1FpgaClock)
         );
     
     tMTRDB_D5M_Driver iMTRDB_D5M_Driver (
-        .ul1Clock           (piul1FpgaClock),
-        .ul1Reset_n         (piul1FpgaReset_n),
+        .piul1Clock         (piul1FpgaClock),
+        .piul1Reset_n       (piul1FpgaReset_n),
+        .piul1PixelClock    (ul1PixelClock),
         .pIDriver           (pIImageSensor),
-        .pIImageTransfer    (iIImageTransfer)
+        .pIImageTransfer    (iIFrameTransfer)
         );
     
-    tMADV7123_Driver iMADV7123_Driver (
-        .ul1Clock           (piul1FpgaClock),
-        .ul1Reset_n         (piul1FpgaReset_n),
-        .pIDriver           (pIDisplay),
-        .pIImageTransfer    (iIImageTransfer)
+    tMVgaDriver iMVgaDriver (
+        .piul1Clock         (piul1FpgaClock),
+        .piul1Reset_n       (piul1FpgaReset_n),
+        .pIDriver           (pIDisplayOut),
+        .pIImageTransfer    (iIFrameTransfer)
         );
 
 endmodule : tMCameraFpga

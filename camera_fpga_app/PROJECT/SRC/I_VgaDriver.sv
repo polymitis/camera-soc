@@ -1,10 +1,10 @@
 // Project   : ADV7123 VGA DAC
 // Details   : ADV7123 VGA DAC interface.
-`ifndef I_ADV7123_SV
-`define I_ADV7123_SV
+`ifndef I_VGADRIVER_SV
+`define I_VGADRIVER_SV
 
 // ADV7123 interface
-interface tIADV7123;
+interface tIVgaDriver;
 
     logic       ul1VgaClock;
     logic [7:0] ul8VgaRed;
@@ -15,7 +15,7 @@ interface tIADV7123;
     logic       ul1VgaVSync;
     logic       ul1VgaSync_n;
 
-    modport device (
+    modport display (
         input ul1VgaClock,
         input ul8VgaRed,
         input ul8VgaGreen,
@@ -37,6 +37,6 @@ interface tIADV7123;
         output ul1VgaSync_n
         ); 
         
-endinterface : tIADV7123
+endinterface : tIVgaDriver
 
-`endif//I_ADV7123_SV
+`endif//I_VGADRIVER_SV
