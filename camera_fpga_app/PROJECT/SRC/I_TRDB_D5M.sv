@@ -43,6 +43,6 @@ interface tITRDB_D5M;
         output ul1Scl
         ); 
         
-endinterface//tITRDB_D5M
+endinterface : tITRDB_D5M
 
 `endif//I_TRDB_D5M_SV

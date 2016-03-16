@@ -10,20 +10,20 @@ interface tIADV7123;
     logic [7:0] ul8VgaRed;
     logic [7:0] ul8VgaGreen;
     logic [7:0] ul8VgaBlue;
-    logic       ul1VgaBlankN;
+    logic       ul1VgaBlank_n;
     logic       ul1VgaHSync;
     logic       ul1VgaVSync;
-    logic       ul1VgaSync;
+    logic       ul1VgaSync_n;
 
     modport device (
         input ul1VgaClock,
         input ul8VgaRed,
         input ul8VgaGreen,
         input ul8VgaBlue,
-        input ul1VgaBlankN,
+        input ul1VgaBlank_n,
         input ul1VgaHSync,
         input ul1VgaVSync,
-        input ul1VgaSync
+        input ul1VgaSync_n
         );
              
     modport driver (
@@ -31,12 +31,12 @@ interface tIADV7123;
         output ul8VgaRed,
         output ul8VgaGreen,
         output ul8VgaBlue,
-        output ul1VgaBlankN,
+        output ul1VgaBlank_n,
         output ul1VgaHSync,
         output ul1VgaVSync,
-        output ul1VgaSync
+        output ul1VgaSync_n
         ); 
         
-endinterface//ADV7123
+endinterface : tIADV7123
 
 `endif//I_ADV7123_SV

@@ -29,6 +29,6 @@ interface tIImageTransfer(
         input ul1MacroBlockEnd
         ); 
     
-endinterface//ImageTransfer
+endinterface : tIImageTransfer
 
 `endif//I_IMAGETRANSFER_SV

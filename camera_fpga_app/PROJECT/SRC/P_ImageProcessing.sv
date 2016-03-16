@@ -12,7 +12,7 @@ package tPImageProcessing;
         MBLK16X16 = 2'b11
     } teMacroBlockType;
 
-endpackage//ImageProcessing
+endpackage : tPImageProcessing
 
 import tPImageProcessing::*;
 
