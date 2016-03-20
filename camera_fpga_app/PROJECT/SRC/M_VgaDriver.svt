@@ -1,0 +1,79 @@
+// Project   : VGA
+// Details   : VGA driver (60Hz, 640x480) testbench.
+`ifndef M_VGADRIVER_SVT
+`define M_VGADRIVER_SVT
+
+`include "I_FrameTransfer.sv"
+`include "M_VgaDriver.sv"
+`include "M_FrameBuffer_320x240.sv"
+
+module tMVgaDriver_tb;
+    timeunit 1ns;
+    timeprecision 1ps;
+
+    localparam time SYS_CLOCK_PERIOD = 20ns;
+    localparam time PLL_CLOCK_PERIOD = 39.722ns;
+    
+    localparam int unsigned RESET_DELAY_CC = 50000;
+
+    logic piul1Reset_n; // asynchronous reset
+    
+    logic ul1SysClock; // 50 MHz
+    logic ul1SysReset_n;
+    logic ul1PllClock; // 25.175 MHz
+    logic ul1PllReset_n;
+    
+    // VGA output interface
+    tIVgaOut iIVgaOut
+    ( // Ports:
+        .ul1Clock       (ul1PllClock),
+        .ul1Reset_n     (ul1PllReset_n)
+    );
+     
+    // Frame transfer bus
+    tIFrameTransfer iIFrameTransfer 
+    ( // Ports:
+        .ul1Clock       (ul1SysClock),
+        .ul1Reset_n     (ul1SysReset_n)
+    );
+    
+    // System reset
+    tMResetSync  
+    #(// Parameters:
+        .RESET_DELAY_CC (RESET_DELAY_CC)
+    )
+    iMSysResetSync
+    ( // Ports:
+        .piul1Clock     (ul1SysClock),
+        .piul1ResetIn   (piul1Reset_n),
+        .poul1ResetOut  (ul1SysReset_n)
+    );
+    
+    // Pll reset
+    tMResetSync  
+    #(// Parameters:
+        .RESET_DELAY_CC (RESET_DELAY_CC)
+    )
+    iMPllResetSync
+    ( // Ports:
+        .piul1Clock     (ul1PllClock),
+        .piul1ResetIn   (piul1Reset_n),
+        .poul1ResetOut  (ul1PllReset_n)
+    );
+    
+    // VGA driver
+    tMVgaDriver iMVgaDriver 
+    ( // Ports:
+        .pIVgaOut       (iIVgaOut),
+        .pIFrameIn      (iIFrameTransfer)
+    )
+    
+    // System clock
+    forever #(SYS_CLOCK_PERIOD/2) ul1SysClock <= ~ul1SysClock;
+    
+    // Pll clock 
+    forever #(PLL_CLOCK_PERIOD/2) ul1PllClock <= ~ul1PllClock;
+
+endmodule : tMVgaDriver_tb
+
+`endif//M_VGADRIVER_SVT

@@ -239,4 +239,12 @@ _Pvt_Extensions
 db/
 incremental_db/
 output_files/
-.bak
+aldec/
+cadence/
+synopsys/
+*_INFO.txt
+*_dump.txt
+*.bak
+
+# Other
+*.Lnk

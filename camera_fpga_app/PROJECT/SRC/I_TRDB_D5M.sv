@@ -4,7 +4,11 @@
 `define I_TRDB_D5M_SV
 
 // TRDB_D5M interface
-interface tITRDB_D5M;
+interface tITRDB_D5M
+( // Ports:
+    input logic ul1Clock,
+    input logic ul1Reset_n
+);
 
     logic        ul1PixelClock;
     logic [11:0] ul12PixelData;
@@ -15,22 +19,12 @@ interface tITRDB_D5M;
     logic        ul1LineValid;
     logic        ul1FrameValid;
     logic        ul1Sda;
+    logic        ul1SdaIn;
+    logic        ul1SdaOut;
+    logic        ul1SdaOEn;
     logic        ul1Scl;
 
-    modport device (
-        output ul1PixelClock,
-        output ul12PixelData,
-        input  ul1ExtClockInput,
-        input  ul1Resetn,
-        input  ul1SnapshotTrigger,
-        output ul1SnapshotStrobe,
-        output ul1LineValid,
-        output ul1FrameValid,
-        inout  ul1Sda,
-        input  ul1Scl
-        );
-             
-    modport driver (
+    modport conx (
         input  ul1PixelClock,
         input  ul12PixelData,
         output ul1ExtClockInput,
@@ -40,6 +34,23 @@ interface tITRDB_D5M;
         input  ul1LineValid,
         input  ul1FrameValid,
         inout  ul1Sda,
+        output ul1Scl
+        );
+             
+    modport driver (
+        input  ul1Clock,
+        input  ul1Reset_n,
+        input  ul1PixelClock,
+        input  ul12PixelData,
+        output ul1ExtClockInput,
+        output ul1Resetn,
+        output ul1SnapshotTrigger,
+        input  ul1SnapshotStrobe,
+        input  ul1LineValid,
+        input  ul1FrameValid,
+        input  ul1SdaIn,
+        output ul1SdaOut,
+        output ul1SdaOEn,
         output ul1Scl
         ); 
         
