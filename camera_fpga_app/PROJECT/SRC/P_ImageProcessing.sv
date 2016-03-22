@@ -1,7 +1,7 @@
 // Project   : FPGA Library\Image Processing
 // Details   : Image Processing package.
-`ifndef P_IMAGEPROCESSING_SV
-`define P_IMAGEPROCESSING_SV
+`ifndef P_IMAGEPROCESSING_SVP
+`define P_IMAGEPROCESSING_SVP
 
 package tPImageProcessing;
 
@@ -16,4 +16,4 @@ endpackage : tPImageProcessing
 
 import tPImageProcessing::*;
 
-`endif//P_IMAGEPROCESSING_SV
+`endif//P_IMAGEPROCESSING_SVP

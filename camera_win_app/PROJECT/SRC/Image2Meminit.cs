@@ -65,7 +65,7 @@ namespace camera_win_app
 
                 for (uint i = 0U; i < sourcePixels.Length; i += 4U)
                 {
-                    sbFileContents.AppendFormat("{0:x2}{1:x2}{2:x2}", sourcePixels[i], sourcePixels[i + 1U], sourcePixels[i + 2U]);
+                    sbFileContents.AppendFormat("{0:x1}{1:x1}{2:x1}", sourcePixels[i] >> 4, sourcePixels[i + 1U] >> 4, sourcePixels[i + 2U] >> 4);
                     sbFileContents.AppendLine();
                 }
 
@@ -77,7 +77,7 @@ namespace camera_win_app
                     sbFilePath.Append(folderBrowserDialog.SelectedPath);
                     sbFilePath.Append("\\");
                     sbFilePath.Append(fileName);
-                    sbFilePath.Append("_rgb24.meminit");
+                    sbFilePath.Append("_rgb12.meminit");
 
                     StreamWriter streamWriter = new StreamWriter(sbFilePath.ToString(), false);
 

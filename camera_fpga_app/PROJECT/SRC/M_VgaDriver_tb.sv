@@ -1,11 +1,11 @@
 // Project   : VGA
 // Details   : VGA driver (60Hz, 640x480) testbench.
-`ifndef M_VGADRIVER_SVT
-`define M_VGADRIVER_SVT
+`ifndef M_VGADRIVER_TB_SV
+`define M_VGADRIVER_TB_SV
 
 `include "I_FrameTransfer.sv"
 `include "M_VgaDriver.sv"
-`include "M_FrameBuffer_320x240.sv"
+`include "M_FrameBuffer_640x480.sv"
 
 module tMVgaDriver_tb;
     timeunit 1ns;
@@ -14,14 +14,19 @@ module tMVgaDriver_tb;
     localparam time SYS_CLOCK_PERIOD = 20ns;
     localparam time PLL_CLOCK_PERIOD = 39.722ns;
     
-    localparam int unsigned RESET_DELAY_CC = 50000;
-
-    logic piul1Reset_n; // asynchronous reset
-    
+    // System clock
     logic ul1SysClock; // 50 MHz
-    logic ul1SysReset_n;
+    always #(SYS_CLOCK_PERIOD/2) ul1SysClock <= ~ul1SysClock;
+    
+    // Pll clock 
     logic ul1PllClock; // 25.175 MHz
-    logic ul1PllReset_n;
+    always #(PLL_CLOCK_PERIOD/2) ul1PllClock <= ~ul1PllClock;
+    
+    localparam int unsigned RESET_DELAY_CC = 50000; // 1 ms delay with a 50 MHz clock
+    
+    logic ul1Reset_n; // asynchronous reset    
+    logic ul1SysReset_n; // reset in sync with SysClock
+    logic ul1PllReset_n; // reset in sync with PllClock
     
     // VGA output interface
     tIVgaOut iIVgaOut
@@ -45,7 +50,7 @@ module tMVgaDriver_tb;
     iMSysResetSync
     ( // Ports:
         .piul1Clock     (ul1SysClock),
-        .piul1ResetIn   (piul1Reset_n),
+        .piul1ResetIn   (ul1Reset_n),
         .poul1ResetOut  (ul1SysReset_n)
     );
     
@@ -57,7 +62,7 @@ module tMVgaDriver_tb;
     iMPllResetSync
     ( // Ports:
         .piul1Clock     (ul1PllClock),
-        .piul1ResetIn   (piul1Reset_n),
+        .piul1ResetIn   (ul1Reset_n),
         .poul1ResetOut  (ul1PllReset_n)
     );
     
@@ -66,14 +71,8 @@ module tMVgaDriver_tb;
     ( // Ports:
         .pIVgaOut       (iIVgaOut),
         .pIFrameIn      (iIFrameTransfer)
-    )
-    
-    // System clock
-    forever #(SYS_CLOCK_PERIOD/2) ul1SysClock <= ~ul1SysClock;
-    
-    // Pll clock 
-    forever #(PLL_CLOCK_PERIOD/2) ul1PllClock <= ~ul1PllClock;
+    );
 
 endmodule : tMVgaDriver_tb
 
-`endif//M_VGADRIVER_SVT
+`endif//M_VGADRIVER_TB_SV

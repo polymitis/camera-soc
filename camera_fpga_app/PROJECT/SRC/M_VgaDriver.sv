@@ -12,6 +12,7 @@ module tMVgaDriver
     tIVgaOut.driver         pIVgaOut,
     tIFrameTransfer.dest    pIFrameIn
 );
+
     const logic [9:0] cul10HSyncDurationCC       = 96;  // 3.810 us
     const logic [9:0] cul10HBackPorchDurationCC  = 48;  // 1.910 us
     const logic [9:0] cul10HDisplayDurationCC    = 640; // 25.40 us
@@ -21,7 +22,7 @@ module tMVgaDriver
     const logic [9:0] cul10VBackPorchDurationLC  = 33;
     const logic [9:0] cul10VDisplayDurationLC    = 480;
     const logic [9:0] cul10VFrontPorchDurationLC = 10;
-
+    
     typedef enum logic [1:0]
     {
         HSYNC_STATE_SYNC,
@@ -43,59 +44,111 @@ module tMVgaDriver
     teHSyncState eHSyncState;
     teVSyncState eVSyncState;
     
-    logic [9:0]  ul10HSyncClockCounter;
-    logic [9:0]  ul10VSyncLineCounter;
+    logic [9:0]      ul10HSyncClockCounter;
+    logic [9:0]      ul10VSyncLineCounter;
     
-    logic        ul1HSyncDisplayActive;
-    logic        ul1VSyncDisplayActive;
+    logic            ul1HSyncDisplayActive;
+    logic            ul1VSyncDisplayActive;
     
-    logic        ul1EndOfLine;
+    logic            ul1EndOfLine;
     
-    logic [16:0] ul17FBReadAddress; 
-    logic [23:0] ul24FBReadData;
+    logic [18:0]     ul19PixelAddr;
+    logic [1:0]      ul2FrameBufferI;
+    logic [17:0]     ul17PixelAddr; 
+    logic [2:0][3:0] ul12RgbOut[4];
     
     // Frame buffer
-    tMFrameBuffer_320x240 iMFrameBuffer_320x240 
-    (
-        .piul1WriteClock    (pIFrameIn.ul1Clock),
-        .piul1ReadClock     (pIVgaOut.ul1Clock),
-        .piul1WriteEnable   (1'b0),
-        .piul17WriteAddress ('b0),
-        .piul24WriteData    ('b0),
-        .piul17ReadAddress  (ul17FBReadAddress),
-        .poul24ReadData     (ul24FBReadData)
-    );
+    genvar gvI;
+    generate for (gvI = 0; gvI <= 3; gvI = gvI + 1)
+    begin: g_sub_frame_buffer
+        
+        tMFrameBuffer_320x240 iMFrameBuffer_320x240 
+        (
+            .piul1WClock  (pIFrameIn.ul1Clock),
+            .piul1RClock  (pIVgaOut.ul1Clock),
+            .piul1WEnable (1'b0),
+            .piul17WAddr  ('b0),
+            .piul12WData  ('b0),
+            .piul17RAddr  (ul17PixelAddr),
+            .poul12RData  (ul12RgbOut[gvI])
+        );
+        
+    end: g_sub_frame_buffer
+    endgenerate
     
-    assign pIVgaOut.ul1Sync_n = 1'b0;
+    // Select pixel in sub-frame buffer.
+    //
+    // There are 4 subframes encoded as:
+    //
+    //        0px    320px  640px
+    //            -----------
+    //            | 00 | 01 |
+    //  153600px  |----|----|
+    //            | 10 | 11 |
+    //  307200px  -----------
+    //
+    // @param [in]  piul19PixelAddr is the pixel address in 640x480 resolution.
+    // @param [out] poul4FrameBufferI is the sub-frame buffer index.
+    // @param [out] poul17PixelAddr is the sub-frame buffer pixel address.
+    function automatic void SelectPixelInSubFrameBuffer(
+        input  logic [18:0] piul19PixelAddr,
+        output logic [1:0]  poul2FrameBufferI,
+        output logic [17:0] poul17PixelAddr);
+        
+        logic [18:0] ul19Address = piul19PixelAddr;
+        
+        poul2FrameBufferI = 2'b00; 
+        if (piul19PixelAddr > 153599)
+        begin
+            poul2FrameBufferI[1] = 1'b1;
+            ul19Address = ul19Address - 19'd153599;
+        end 
+        if (piul19PixelAddr[9:0] > 319)
+        begin
+            poul2FrameBufferI[0] = 1'b1; 
+            ul19Address = ul19Address - 19'd320;
+        end
+        
+        poul17PixelAddr = ul19Address[17:0];
+        
+    endfunction
+
+    assign pIFrameIn.ul1Ready = 1'b0; // DEBUG
     
-    assign pIVgaOut.ul1Blank_n = 1'b1;
+    // Display output
+    always_comb
+    begin: p_display_output
+        // select output pixel in sub-frame buffers 
+        SelectPixelInSubFrameBuffer(ul19PixelAddr,ul2FrameBufferI,ul17PixelAddr);
+        
+        pIVgaOut.ul1Sync_n = 1'b1; // always in sync
+        pIVgaOut.ul1PixelClock = pIVgaOut.ul1Clock; // pass the pll clock to the pixel clock
+        
+        // RGB output
+        pIVgaOut.ul8Red   = {ul12RgbOut[ul2FrameBufferI][2], 4'hF};
+        pIVgaOut.ul8Green = {ul12RgbOut[ul2FrameBufferI][1], 4'hF};
+        pIVgaOut.ul8Blue  = {ul12RgbOut[ul2FrameBufferI][0], 4'hF};
+    end: p_display_output
     
-    assign pIVgaOut.ul1PixelClock = pIVgaOut.ul1Clock;
-    
-    assign pIFrameIn.ul1Ready = 1'b0; 
-    
-    // RGB output
-    assign pIVgaOut.ul8Red = ul24FBReadData[23:16];
-    assign pIVgaOut.ul8Green = ul24FBReadData[15:8];
-    assign pIVgaOut.ul8Blue = ul24FBReadData[7:0];
-    
-    // Pixel output control process
+    // Display output control 
     always_ff @ (posedge pIVgaOut.ul1Clock)
-    begin: p_pixel_output_ctrl
+    begin: p_display_output_ctrl
         if (pIVgaOut.ul1Reset_n == 1'b0)
         begin
-            ul17FBReadAddress <= 'b0;
+            ul19PixelAddr <= 'b0;
         end
         else
         begin
+            pIVgaOut.ul1Blank_n <= 1'b1;
             if (ul1HSyncDisplayActive == 1'b1 && ul1VSyncDisplayActive == 1'b1)
             begin
-                ul17FBReadAddress <= ul17FBReadAddress + 1'b1;
+                pIVgaOut.ul1Blank_n <= 1'b0;
+                ul19PixelAddr <= ul19PixelAddr + 1'b1;
             end
         end
-    end: p_pixel_output_ctrl
+    end: p_display_output_ctrl
     
-    // Horizontal synchronization control process
+    // Horizontal synchronization control 
     always_ff @ (posedge pIVgaOut.ul1Clock) 
     begin: p_horizontal_sync_ctrl
         if (pIVgaOut.ul1Reset_n == 1'b0) 
@@ -155,7 +208,7 @@ module tMVgaDriver
         end
     end: p_horizontal_sync_ctrl
     
-    // Vertical synchronization control process
+    // Vertical synchronization control 
     always_ff @ (posedge pIVgaOut.ul1Clock) 
     begin: p_vertical_sync_ctrl
         if (pIVgaOut.ul1Reset_n == 1'b0) 

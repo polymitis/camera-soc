@@ -1,0 +1,63 @@
+../../PROJECT/SRC/M_VgaDriver.sv {1 {vlog -work work -sv -stats=none C:/Users/pfountas/Documents/Projects/pfountas-research/camera_fpga_app/PROJECT/SRC/M_VgaDriver.sv
+Model Technology ModelSim ALTERA vlog 10.4b Compiler 2015.05 May 27 2015
+-- Compiling interface tIVgaOut
+-- Compiling package tPImageProcessing
+-- Compiling interface tIFrameTransfer
+-- Compiling package M_VgaDriver_sv_unit
+-- Importing package tPImageProcessing
+-- Compiling interface tIFrameTransfer
+-- Compiling module tMFrameBuffer_640x480
+-- Compiling module tMVgaDriver
+
+Top level modules:
+	tMVgaDriver
+
+} {} {}} ../../PROJECT/SRC/I_VgaOut.sv {1 {vlog -work work -sv -stats=none C:/Users/pfountas/Documents/Projects/pfountas-research/camera_fpga_app/PROJECT/SRC/I_VgaOut.sv
+Model Technology ModelSim ALTERA vlog 10.4b Compiler 2015.05 May 27 2015
+-- Compiling interface tIVgaOut
+
+Top level modules:
+	--none--
+
+} {} {}} ../../PROJECT/SRC/M_FrameBuffer_640x480.sv {1 {vlog -work work -sv -stats=none C:/Users/pfountas/Documents/Projects/pfountas-research/camera_fpga_app/PROJECT/SRC/M_FrameBuffer_640x480.sv
+Model Technology ModelSim ALTERA vlog 10.4b Compiler 2015.05 May 27 2015
+-- Compiling module tMFrameBuffer_640x480
+
+Top level modules:
+	tMFrameBuffer_640x480
+
+} {} {}} ../../PROJECT/SRC/P_ImageProcessing.sv {1 {vlog -work work -sv -stats=none C:/Users/pfountas/Documents/Projects/pfountas-research/camera_fpga_app/PROJECT/SRC/P_ImageProcessing.sv
+Model Technology ModelSim ALTERA vlog 10.4b Compiler 2015.05 May 27 2015
+-- Compiling package tPImageProcessing
+
+Top level modules:
+	--none--
+
+} {} {}} ../../PROJECT/SRC/M_VgaDriver_tb.sv {1 {vlog -work work -sv -stats=none C:/Users/pfountas/Documents/Projects/pfountas-research/camera_fpga_app/PROJECT/SRC/M_VgaDriver_tb.sv
+Model Technology ModelSim ALTERA vlog 10.4b Compiler 2015.05 May 27 2015
+-- Compiling package tPImageProcessing
+-- Compiling interface tIFrameTransfer
+-- Compiling interface tIVgaOut
+-- Compiling package M_VgaDriver_tb_sv_unit
+-- Importing package tPImageProcessing
+-- Compiling interface tIFrameTransfer
+-- Compiling interface tIVgaOut
+-- Compiling module tMFrameBuffer_640x480
+-- Compiling module tMVgaDriver
+-- Compiling module tMVgaDriver_tb
+
+Top level modules:
+	tMVgaDriver_tb
+
+} {} {}} ../../PROJECT/SRC/I_FrameTransfer.sv {1 {vlog -work work -sv -stats=none C:/Users/pfountas/Documents/Projects/pfountas-research/camera_fpga_app/PROJECT/SRC/I_FrameTransfer.sv
+Model Technology ModelSim ALTERA vlog 10.4b Compiler 2015.05 May 27 2015
+-- Compiling package tPImageProcessing
+-- Compiling interface tIFrameTransfer
+-- Compiling package I_FrameTransfer_sv_unit
+-- Importing package tPImageProcessing
+-- Compiling interface tIFrameTransfer
+
+Top level modules:
+	--none--
+
+} {} {}}
