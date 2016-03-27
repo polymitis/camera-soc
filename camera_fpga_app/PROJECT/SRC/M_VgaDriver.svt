@@ -8,6 +8,8 @@
 `include "I_FrameTransfer.sv"
 `include "M_VgaDriver.sv"
 
+// assert macro
+`define ASSERT(__cond) assert (__cond) else $fatal(2,`"(__cond)`")
 
 // VgaDriver testbench top module
 module t_tMVgaDriver;
@@ -55,8 +57,12 @@ module t_tMTransactor
     timeunit 1ns;
     timeprecision 1ps;
     
+    // bit A, B;
+    
     initial 
     begin : Main
+        // A <= 1'b1;
+        // B <= 1'b1;
         
         // reset VGA output interface
         pIVgaOut.cb.ul1Reset_n <= 1'b0;
@@ -68,11 +74,13 @@ module t_tMTransactor
         repeat (3) @pIFrameIn.cb_src;
         pIFrameIn.cb_src.ul1Reset_n <= 1'b1;
         
-        repeat (5000) @pIVgaOut.cb; // 2 frames duration
+        // B <= 1'b0;
+        // @pIVgaOut.cb;
+        // a1: `ASSERT(A == B);
         
-        assert (1 == 1) $error("test assertions");
+        repeat (875000) @pIVgaOut.cb; // (35 ms) 2 frames duration
         
-        //$finish;
+        $finish;
 
     end : Main
 

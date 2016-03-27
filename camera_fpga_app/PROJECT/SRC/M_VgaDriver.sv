@@ -70,15 +70,6 @@ module tMVgaDriver
     
     // Select pixel in sub-frame buffer.
     //
-    // There are 4 subframes encoded as:
-    //
-    //        0px    320px  640px
-    //            -----------
-    //            | 00 | 01 |
-    //  153600px  |----|----|
-    //            | 10 | 11 |
-    //  307200px  -----------
-    //
     // @param [in]  piul19PixelAddr is the pixel address in 640x480 resolution.
     // @param [out] poul4FrameBufferI is the sub-frame buffer index.
     // @param [out] poul17PixelAddr is the sub-frame buffer pixel address.
@@ -86,17 +77,15 @@ module tMVgaDriver
         input  logic [18:0] piul19PixelAddr,
         output logic [16:0] poul17PixelAddr);
         
-        logic [18:0] ul19Address = piul19PixelAddr;
+        logic [18:0] ul19Address = 19'b0;
+        logic [8:0] ul19HAdjAddress = 9'b0;
+        logic [8:0] ul19VAdjAddress = 9'b0;
         
-        if (piul19PixelAddr > 153599)
-        begin
-            ul19Address = ul19Address - 19'd153599;
-        end 
-        if (piul19PixelAddr[9:0] > 319)
-        begin
-            ul19Address = ul19Address - 19'd320;
-        end
-        
+        ul19Address = piul19PixelAddr;
+        // horizontal adjustment
+        ul9HAdjAddress = piul19PixelAddr(2:0);
+        // vertical adjustment
+        ul9VAdjAddress = (ul19HAdjAddress >> 4) + piul19PixelAddr(0);
         poul17PixelAddr = ul19Address[16:0];
         
     endfunction : SelectPixelInSubFrameBuffer

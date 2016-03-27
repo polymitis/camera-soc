@@ -33,7 +33,7 @@ array set tb_src_files  {
 set tb_module   t_tMVgaDriver
 
 # Simulation duration (2 frames, 640x480@60Hz)
-set sim_dur     35ms   
+set sim_dur     50ms   
 
 
 
@@ -110,7 +110,7 @@ if {$broken == 1} {
     echo "Simulation failed"
 } elseif {$broken == 2} {
     # Assertion or other break condition
-    echo "Assertion failed"
+    echo "Assertions failed"
 } else { 
     echo "Simulation finished succesfully"
     set test_status passed
