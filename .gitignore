@@ -247,4 +247,6 @@ synopsys/
 *.bak
 
 # Other
+work/
+*.wlf
 *.Lnk

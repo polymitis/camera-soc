@@ -25,28 +25,17 @@ module tMCameraFpga
     logic ul1SysReset_n;
     
     logic ul1PllClock;
+    logic ul1PllLocked;
     logic ul1PllReset_n;
     
     // Image sensor interface
-    tITRDB_D5M iITRDB_D5M
-    ( // Ports:
-      .ul1Clock         (ul1SysClock),
-      .ul1Reset_n       (ul1SysReset_n)
-    );
+    tITRDB_D5M iITRDB_D5M(ul1SysClock);
     
     // VGA output interface
-    tIVgaOut iIVgaOut
-    ( // Ports:
-        .ul1Clock       (ul1PllClock),
-        .ul1Reset_n     (ul1PllReset_n)
-    );
+    tIVgaOut iIVgaOut(ul1PllClock);
      
     // Frame transfer bus
-    tIFrameTransfer iIFrameTransfer 
-    ( // Ports:
-        .ul1Clock       (ul1SysClock),
-        .ul1Reset_n     (ul1SysReset_n)
-    );
+    tIFrameTransfer iIFrameTransfer(ul1SysClock);
     
     // System reset
     tMResetSync  
@@ -65,7 +54,8 @@ module tMCameraFpga
     ( // Ports:
         .piul1RefClock  (ul1SysClock),
         .piul1Reset_n   (ul1SysReset_n),
-        .poul1ClockOut  (ul1PllClock)
+        .poul1ClockOut  (ul1PllClock),
+        .poul1Locked    (ul1PllLocked)
     );
     
     // Pll reset
@@ -104,6 +94,7 @@ module tMCameraFpga
     assign poul10LEDR[9] = ul1SysReset_n;
     
     // export Image sensor interface
+    assign iIFrameTransfer.ul1Reset_n    = ul1SysReset_n;
     assign iITRDB_D5M.ul1PixelClock      = pITRDB_D5M.ul1PixelClock;
     assign iITRDB_D5M.ul12PixelData      = pITRDB_D5M.ul12PixelData;
     assign pITRDB_D5M.ul1ExtClockInput   = iITRDB_D5M.ul1ExtClockInput;
@@ -117,6 +108,7 @@ module tMCameraFpga
     assign pITRDB_D5M.ul1Scl             = iITRDB_D5M.ul1Scl;
     
     // export VGA output interface
+    assign iIVgaOut.ul1Reset_n    = ul1PllReset_n & ul1PllLocked; // release reset only after PLL has locked
     assign pIVgaOut.ul8Red        = iIVgaOut.ul8Red;    
     assign pIVgaOut.ul8Green      = iIVgaOut.ul8Green;  
     assign pIVgaOut.ul8Blue       = iIVgaOut.ul8Blue;

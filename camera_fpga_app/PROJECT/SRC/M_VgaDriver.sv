@@ -23,21 +23,21 @@ module tMVgaDriver
     const logic [9:0] cul10VDisplayDurationLC    = 480;
     const logic [9:0] cul10VFrontPorchDurationLC = 10;
     
-    typedef enum logic [1:0]
+    typedef enum logic [3:0]
     {
-        HSYNC_STATE_SYNC,
-        HSYNC_STATE_BACKPORCH,
-        HSYNC_STATE_DISPLAY,
-        HSYNC_STATE_FRONTPORCH
+        HSYNC_STATE_SYNC        = 4'b0001,
+        HSYNC_STATE_BACKPORCH   = 4'b0010,
+        HSYNC_STATE_DISPLAY     = 4'b0100,
+        HSYNC_STATE_FRONTPORCH  = 4'b1000
         
     } teHSyncState;
     
-    typedef enum logic [1:0]
+    typedef enum logic [3:0]
     {
-        VSYNC_STATE_SYNC,
-        VSYNC_STATE_BACKPORCH,
-        VSYNC_STATE_DISPLAY,
-        VSYNC_STATE_FRONTPORCH
+        VSYNC_STATE_SYNC        = 4'b0001,
+        VSYNC_STATE_BACKPORCH   = 4'b0010,
+        VSYNC_STATE_DISPLAY     = 4'b0100,
+        VSYNC_STATE_FRONTPORCH  = 4'b1000
         
     } teVSyncState;
     
@@ -53,28 +53,20 @@ module tMVgaDriver
     logic            ul1EndOfLine;
     
     logic [18:0]     ul19PixelAddr;
-    logic [1:0]      ul2FrameBufferI;
-    logic [17:0]     ul17PixelAddr; 
-    logic [2:0][3:0] ul12RgbOut[4];
+    logic [16:0]     ul17PixelAddr; 
+    logic [2:0][3:0] ul12RgbOut;
     
-    // Frame buffer
-    genvar gvI;
-    generate for (gvI = 0; gvI <= 3; gvI = gvI + 1)
-    begin: g_sub_frame_buffer
-        
-        tMFrameBuffer_320x240 iMFrameBuffer_320x240 
-        (
-            .piul1WClock  (pIFrameIn.ul1Clock),
-            .piul1RClock  (pIVgaOut.ul1Clock),
-            .piul1WEnable (1'b0),
-            .piul17WAddr  ('b0),
-            .piul12WData  ('b0),
-            .piul17RAddr  (ul17PixelAddr),
-            .poul12RData  (ul12RgbOut[gvI])
-        );
-        
-    end: g_sub_frame_buffer
-    endgenerate
+    // Frame buffer   
+    tMFrameBuffer_320x240 iMFrameBuffer_320x240 
+    (
+        .piul1WClock  (pIFrameIn.ul1Clock),
+        .piul1RClock  (pIVgaOut.ul1Clock),
+        .piul1WEnable (1'b0),
+        .piul17WAddr  (17'b0),
+        .piul12WData  (12'b0),
+        .piul17RAddr  (ul17PixelAddr),
+        .poul12RData  (ul12RgbOut)
+    );
     
     // Select pixel in sub-frame buffer.
     //
@@ -92,42 +84,48 @@ module tMVgaDriver
     // @param [out] poul17PixelAddr is the sub-frame buffer pixel address.
     function automatic void SelectPixelInSubFrameBuffer(
         input  logic [18:0] piul19PixelAddr,
-        output logic [1:0]  poul2FrameBufferI,
-        output logic [17:0] poul17PixelAddr);
+        output logic [16:0] poul17PixelAddr);
         
         logic [18:0] ul19Address = piul19PixelAddr;
         
-        poul2FrameBufferI = 2'b00; 
         if (piul19PixelAddr > 153599)
         begin
-            poul2FrameBufferI[1] = 1'b1;
             ul19Address = ul19Address - 19'd153599;
         end 
         if (piul19PixelAddr[9:0] > 319)
         begin
-            poul2FrameBufferI[0] = 1'b1; 
             ul19Address = ul19Address - 19'd320;
         end
         
-        poul17PixelAddr = ul19Address[17:0];
+        poul17PixelAddr = ul19Address[16:0];
         
-    endfunction
+    endfunction : SelectPixelInSubFrameBuffer
 
-    assign pIFrameIn.ul1Ready = 1'b0; // DEBUG
+    always_ff @ (posedge pIFrameIn.ul1Clock)
+    begin: p_frame_bus_ctrl
+        if (pIFrameIn.ul1Reset_n == 1'b0)
+        begin
+            pIFrameIn.ul1Ready <= 1'b0;
+        end
+        else
+        begin
+            pIFrameIn.ul1Ready <= 1'b0;
+        end 
+    end: p_frame_bus_ctrl
     
     // Display output
     always_comb
     begin: p_display_output
         // select output pixel in sub-frame buffers 
-        SelectPixelInSubFrameBuffer(ul19PixelAddr,ul2FrameBufferI,ul17PixelAddr);
+        SelectPixelInSubFrameBuffer(ul19PixelAddr,ul17PixelAddr);
         
         pIVgaOut.ul1Sync_n = 1'b1; // always in sync
         pIVgaOut.ul1PixelClock = pIVgaOut.ul1Clock; // pass the pll clock to the pixel clock
         
         // RGB output
-        pIVgaOut.ul8Red   = {ul12RgbOut[ul2FrameBufferI][2], 4'hF};
-        pIVgaOut.ul8Green = {ul12RgbOut[ul2FrameBufferI][1], 4'hF};
-        pIVgaOut.ul8Blue  = {ul12RgbOut[ul2FrameBufferI][0], 4'hF};
+        pIVgaOut.ul8Red   = {ul12RgbOut[2], 4'hF};
+        pIVgaOut.ul8Green = {ul12RgbOut[1], 4'hF};
+        pIVgaOut.ul8Blue  = {ul12RgbOut[0], 4'hF};
     end: p_display_output
     
     // Display output control 
@@ -174,6 +172,7 @@ module tMVgaDriver
                     pIVgaOut.ul1HSync <= 1'b0;
                     if (ul10HSyncClockCounter == cul10HSyncDurationCC)
                     begin
+                        ul10HSyncClockCounter <= 'b0;
                         eHSyncState <= HSYNC_STATE_BACKPORCH;
                     end 
                 end
@@ -182,6 +181,7 @@ module tMVgaDriver
                 begin
                     if (ul10HSyncClockCounter == cul10HBackPorchDurationCC)
                     begin
+                        ul10HSyncClockCounter <= 'b0;
                         eHSyncState <= HSYNC_STATE_DISPLAY;
                     end    
                 end
@@ -191,6 +191,7 @@ module tMVgaDriver
                     ul1HSyncDisplayActive <= 1'b1;
                     if (ul10HSyncClockCounter == cul10HDisplayDurationCC)
                     begin
+                        ul10HSyncClockCounter <= 'b0;
                         eHSyncState <= HSYNC_STATE_FRONTPORCH;
                     end                      
                 end
@@ -235,6 +236,7 @@ module tMVgaDriver
                     pIVgaOut.ul1VSync <= 1'b0;
                     if (ul10VSyncLineCounter == cul10VSyncDurationLC)
                     begin
+                        ul10VSyncLineCounter <= 'b0;
                         eVSyncState <= VSYNC_STATE_BACKPORCH;
                     end 
                 end
@@ -243,6 +245,7 @@ module tMVgaDriver
                 begin
                     if (ul10VSyncLineCounter == cul10VBackPorchDurationLC)
                     begin
+                        ul10VSyncLineCounter <= 'b0;
                         eVSyncState <= VSYNC_STATE_DISPLAY;
                     end 
                 end
@@ -252,6 +255,7 @@ module tMVgaDriver
                     ul1VSyncDisplayActive <= 1'b1;
                     if (ul10VSyncLineCounter == cul10VDisplayDurationLC)
                     begin
+                        ul10VSyncLineCounter <= 'b0;
                         eVSyncState <= VSYNC_STATE_FRONTPORCH;
                     end
                 end

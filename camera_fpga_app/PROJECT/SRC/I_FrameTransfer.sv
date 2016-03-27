@@ -6,11 +6,12 @@
 `include "P_ImageProcessing.sv"
 
 // Image transfer interface
-interface tIFrameTransfer(
-    input logic ul1Clock,   // Common clock for synchronous trasfer
-    input logic ul1Reset_n  // Common synchronous active-low reset
-    );
+interface tIFrameTransfer
+( // Clocks:
+    input logic ul1Clock   // Common clock for synchronous trasfer
+);
     
+    logic               ul1Reset_n;         // Synchronous active-low reset.
     logic               ul1Active;          // Active-high when transfering frame.
     teMacroBlockType    eMacroBlockType;    // Type of macroblock being transfered.
     logic [23:0]        ul24Rgb24Data;      // RGB24 pixel color data.
@@ -19,7 +20,7 @@ interface tIFrameTransfer(
     
     modport src (
         input  ul1Clock,
-        input  ul1Reset_n,
+        output ul1Reset_n,
         output ul1Active,
         output eMacroBlockType,
         output ul24Rgb24Data,
@@ -36,7 +37,32 @@ interface tIFrameTransfer(
         input  ul1MacroBlockEnd,
         output ul1Ready
         ); 
+
+`ifdef TEST
+
+    clocking cb_src @ (posedge ul1Clock);
+        output ul1Reset_n;
+        output ul1Active;
+        output eMacroBlockType;
+        output ul24Rgb24Data;
+        output ul1MacroBlockEnd;
+        input  ul1Ready;
+    endclocking
+
+    clocking cb_dest @ (posedge ul1Clock);
+        input  ul1Reset_n;
+        input  ul1Active;
+        input  eMacroBlockType;
+        input  ul24Rgb24Data;
+        input  ul1MacroBlockEnd;
+        output ul1Ready;
+    endclocking
     
+    modport t_src (clocking cb_src);
+    modport t_dest (clocking cb_dest);
+
+`endif
+        
 endinterface : tIFrameTransfer
 
 `endif//I_FRAMETRANSFER_SV
