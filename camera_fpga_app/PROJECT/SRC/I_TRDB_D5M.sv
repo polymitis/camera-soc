@@ -18,7 +18,7 @@ interface tITRDB_D5M
     logic        ul1SnapshotStrobe;
     logic        ul1LineValid;
     logic        ul1FrameValid;
-    logic        ul1Sda;
+    wire logic   wl1Sda;
     logic        ul1SdaIn;
     logic        ul1SdaOut;
     logic        ul1SdaOEn;
@@ -33,7 +33,7 @@ interface tITRDB_D5M
         input  ul1SnapshotStrobe,
         input  ul1LineValid,
         input  ul1FrameValid,
-        inout  ul1Sda,
+        inout  wl1Sda,
         output ul1Scl
         );
              
@@ -53,6 +53,47 @@ interface tITRDB_D5M
         output ul1SdaOEn,
         output ul1Scl
         ); 
+
+`ifdef TEST
+    
+    clocking cb_conx @ (posedge ul1Clock);
+        output ul1PixelClock;
+        output ul12PixelData;
+        input  ul1ExtClockInput;
+        input  ul1Resetn;
+        input  ul1SnapshotTrigger;
+        output ul1SnapshotStrobe;
+        output ul1LineValid;
+        output ul1FrameValid;
+        inout  wl1Sda;
+        input  ul1Scl;
+    endclocking
+    
+    modport tb_conx (
+        clocking cb_conx
+        );
+    
+    clocking cb_driver @ (posedge ul1Clock);
+        output ul1Reset_n;
+        output ul1PixelClock;
+        output ul12PixelData;
+        input  ul1ExtClockInput;
+        input  ul1Resetn;
+        input  ul1SnapshotTrigger;
+        output ul1SnapshotStrobe;
+        output ul1LineValid;
+        output ul1FrameValid;
+        output ul1SdaIn;
+        input  ul1SdaOut;
+        input  ul1SdaOEn;
+        input  ul1Scl;
+    endclocking
+    
+    modport tb_driver (
+        clocking cb_driver
+        );
+    
+`endif
         
 endinterface : tITRDB_D5M
 

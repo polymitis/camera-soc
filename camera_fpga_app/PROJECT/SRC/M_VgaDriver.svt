@@ -12,7 +12,7 @@
 `define ASSERT(__cond) assert (__cond) else $fatal(2,`"(__cond)`")
 
 // VgaDriver testbench top module
-module t_tMVgaDriver;
+module tMVgaDriverTB;
     timeunit 1ns;
     timeprecision 1ps;
     
@@ -40,50 +40,48 @@ module t_tMVgaDriver;
         .pIFrameIn      (iIFrameTransfer)
     );
     
-    t_tMTransactor iMTransactor
+    tMVgaDriverTBTransactor iMVgaDriverTBTransactor
     ( // Ports:
         .pIVgaOut       (iIVgaOut),
         .pIFrameIn      (iIFrameTransfer)
     );
     
-endmodule : t_tMVgaDriver
+endmodule : tMVgaDriverTB
 
 // Transactor
-module t_tMTransactor 
+module tMVgaDriverTBTransactor 
 ( // Ports:
-    tIVgaOut.t_driver       pIVgaOut,
-    tIFrameTransfer.t_src   pIFrameIn
+    tIVgaOut.tb_driver       pIVgaOut,
+    tIFrameTransfer.tb_src   pIFrameIn
 );
     timeunit 1ns;
     timeprecision 1ps;
     
-    // bit A, B;
+    //bit A, B;
     
     initial 
     begin : Main
-        // A <= 1'b1;
-        // B <= 1'b1;
+        //A <= 1'b1;
+        //B <= 1'b1;
         
         // reset VGA output interface
-        pIVgaOut.cb.ul1Reset_n <= 1'b0;
-        repeat (3) @pIVgaOut.cb;
-        pIVgaOut.cb.ul1Reset_n <= 1'b1;
+        pIVgaOut.cb_driver.ul1Reset_n <= 1'b0;
+        repeat (3) @pIVgaOut.cb_driver;
+        pIVgaOut.cb_driver.ul1Reset_n <= 1'b1;
         
         // reset Frame transfer bus interface
         pIFrameIn.cb_src.ul1Reset_n <= 1'b0;
         repeat (3) @pIFrameIn.cb_src;
         pIFrameIn.cb_src.ul1Reset_n <= 1'b1;
         
-        // B <= 1'b0;
-        // @pIVgaOut.cb;
-        // a1: `ASSERT(A == B);
+        //B <= 1'b0;
+        //@pIVgaOut.cb_driver;
+        //a1: `ASSERT(A == B);
         
-        repeat (875000) @pIVgaOut.cb; // (35 ms) 2 frames duration
-        
-        $finish;
+        repeat (875000) @pIVgaOut.cb_driver; // (35 ms) 2 frames duration
 
     end : Main
 
-endmodule : t_tMTransactor
+endmodule : tMVgaDriverTBTransactor
 
 `endif//M_VGADRIVER_SVT

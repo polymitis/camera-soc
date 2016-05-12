@@ -58,8 +58,8 @@ interface tIFrameTransfer
         output ul1Ready;
     endclocking
     
-    modport t_src (clocking cb_src);
-    modport t_dest (clocking cb_dest);
+    modport tb_src (clocking cb_src);
+    modport tb_dest (clocking cb_dest);
 
 `endif
         

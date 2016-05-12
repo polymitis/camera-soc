@@ -1,0 +1,79 @@
+// Project   : camera_fpga_app testbench
+// Details   : Camera FPGA testbench.
+`ifndef M_CAMERAFPGA_SVT
+`define M_CAMERAFPGA_SVT
+
+`define TEST
+
+`include "M_CameraFpga.sv"
+
+// assert macro
+`define ASSERT(__cond) assert (__cond) else $fatal(2,`"(__cond)`")
+
+// CameraFpga testbench top module
+module tMCameraFpgaTB;
+    timeunit 1ns;
+    timeprecision 1ps;
+    
+    localparam time SYS_CLOCK_PERIOD = 20ns; // 50 MHz
+    
+    // System clock
+    bit sb1SysClock;
+    always #(SYS_CLOCK_PERIOD/2) sb1SysClock <= ~sb1SysClock;
+    
+    bit sb1FpgaReset_n;
+    
+    logic [9:0] ul10LEDR;
+    
+    // TRDB_D5M interface
+    tITRDB_D5M iITRDB_D5M(sb1SysClock,sb1FpgaReset_n);
+    
+    // VGA interface
+    tIVgaOut iIVgaOut(sb1SysClock);
+    
+    // VGA driver
+    tMCameraFpga M_CameraFpga 
+    ( // Ports:
+        .piul1FpgaClock     (sb1SysClock),
+        .piul1FpgaReset_n   (sb1FpgaReset_n),
+        .poul10LEDR         (ul10LEDR),
+        .pITRDB_D5M         (iITRDB_D5M),
+        .pIVgaOut           (iIVgaOut)
+    );
+    
+    tMCameraFpgaTBTransactor iMCameraFpgaTBTransactor
+    ( // Ports:
+        .pisb1FpgaReset_n   (sb1FpgaReset_n),
+        .poul10LEDR         (ul10LEDR),
+        .pITRDB_D5M         (iITRDB_D5M),
+        .pIVgaOut           (iIVgaOut)
+    );
+    
+endmodule : tMCameraFpgaTB
+
+// Transactor
+module tMCameraFpgaTBTransactor 
+( // Ports:
+    output bit         pisb1FpgaReset_n,
+    input  logic [9:0] poul10LEDR,
+    tITRDB_D5M.tb_conx pITRDB_D5M,
+    tIVgaOut.tb_conx   pIVgaOut
+);
+    timeunit 1ns;
+    timeprecision 1ps;
+    
+    initial 
+    begin : Main
+    
+        // reset system
+        pisb1FpgaReset_n <= 1'b0;
+        @pIVgaOut.cb_conx
+        pisb1FpgaReset_n <= 1'b1;
+        
+        repeat (1750000) @pIVgaOut.cb_conx; // (35 ms) 2 frames duration
+
+    end : Main
+
+endmodule : tMCameraFpgaTBTransactor
+
+`endif//M_CAMERAFPGA_SVT

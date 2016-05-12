@@ -3,7 +3,16 @@
 `ifndef M_PLL_SV
 `define M_PLL_SV
 
+
+`ifdef TEST
+
+`include "PLL/PLL_sim/PLL.vo"
+
+`else
+
 `include "PLL/PLL.v"
+
+`endif
 
 module tMPLL
 ( // Ports:

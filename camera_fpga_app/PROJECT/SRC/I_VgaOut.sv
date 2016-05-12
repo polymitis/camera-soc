@@ -44,7 +44,22 @@ interface tIVgaOut
 
 `ifdef TEST
 
-    clocking cb @ (posedge ul1Clock);
+    clocking cb_conx @ (posedge ul1Clock);
+        input ul8Red;
+        input ul8Green;
+        input ul8Blue;
+        input ul1PixelClock;
+        input ul1Blank_n;
+        input ul1Sync_n;
+        input ul1HSync;
+        input ul1VSync;
+    endclocking
+    
+    modport tb_conx (
+        clocking cb_conx
+        );
+
+    clocking cb_driver @ (posedge ul1Clock);
         output ul1Reset_n;
         input  ul8Red;
         input  ul8Green;
@@ -56,7 +71,9 @@ interface tIVgaOut
         input  ul1VSync;
     endclocking
     
-    modport t_driver (clocking cb);
+    modport tb_driver (
+        clocking cb_driver
+        );
 
 `endif
         

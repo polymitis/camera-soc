@@ -4,7 +4,7 @@
 
 
 # Test name
-set test_name VgaDriver
+set test_name CameraFpga
 
 # Test uut sources location
 set uut_src_loc ../../PROJECT/SRC
@@ -14,22 +14,26 @@ set tb_src_loc ../../PROJECT/SRC
 
 # Test uut sources
 array set uut_src_files  {
-
+    
     0       P_ImageProcessing.sv 
-    1       I_VgaOut.sv
-    2       I_FrameTransfer.sv
-    3       M_FrameBuffer_320x240.sv 
-    4       M_VgaDriver.sv 
+    1       I_TRDB_D5M.sv
+    2       I_VgaOut.sv
+    3       I_FrameTransfer.sv
+    4       PLL/PLL_sim/PLL.vo
+    5       M_PLL.sv
+    6       M_SyncSig.sv
+    7       M_FrameBuffer_320x240.sv 
+    8       M_VgaDriver.sv 
 }
 
 # Test tb sources
 array set tb_src_files  { 
 
-    0       M_VgaDriver.svt 
+    0       M_CameraFpga.svt 
 }
 
 # Testbench entity name
-set tb_module   tMVgaDriverTB
+set tb_module   tMCameraFpgaTB
 
 # Simulation duration (2 frames, 640x480@60Hz)
 set sim_dur     50ms   
