@@ -86,17 +86,17 @@ module tMVgaDriver
         input  logic [18:0] piul19PixelAddr,
         output logic [16:0] poul17PixelAddr);
         
-        logic [18:0] ul19Address = 19'b0;
-        logic [8:0] ul9HAdjAddress = 9'b0;
-        logic [8:0] ul9VAdjAddress = 9'b0;
+        logic [18:0] ul19Address     = 19'b0;
+        logic [18:0] ul19HAdjAddress = 19'b0;
+        logic [18:0] ul19VAdjAddress = 19'b0;
         
         ul19Address = piul19PixelAddr;
         // horizontal adjustment
-        ul9HAdjAddress = (ul19Address % cul10HRes) / cul4ZoomFactor; 
+        ul19HAdjAddress = (ul19Address % cul10HRes) / cul4ZoomFactor; 
         // vertical adjustment
-        ul9VAdjAddress = ul19Address / (cul4ZoomFactor * cul10HRes); 
+        ul19VAdjAddress = ul19Address / (cul4ZoomFactor * cul10HRes); 
         // sub-frame pixel address 
-        poul17PixelAddr = (ul9VAdjAddress * cul10BufHRes) + ul9HAdjAddress;
+        poul17PixelAddr = (ul19VAdjAddress[8:0] * cul10BufHRes) + ul19HAdjAddress[8:0];
         
     endfunction : SelectPixelInSubFrameBuffer
 
@@ -123,9 +123,9 @@ module tMVgaDriver
         
         // RGB output
         // TODO: PF: Reverse color quantization
-        pIVgaOut.ul8Red   = {ul12RgbOut[2], 4'h0};
-        pIVgaOut.ul8Green = {ul12RgbOut[1], 4'h0};
-        pIVgaOut.ul8Blue  = {ul12RgbOut[0], 4'h0};
+        pIVgaOut.ul8Red   = {ul12RgbOut[2], 4'hF};
+        pIVgaOut.ul8Green = {ul12RgbOut[1], 4'hF};
+        pIVgaOut.ul8Blue  = {ul12RgbOut[0], 4'hF};
         //pIVgaOut.ul8Red   = 8'hFF;
         //pIVgaOut.ul8Green = 8'hFF;
         //pIVgaOut.ul8Blue  = 8'hFF;

@@ -65,7 +65,7 @@ namespace camera_win_app
 
                 for (uint i = 0U; i < sourcePixels.Length; i += 4U)
                 {
-                    sbFileContents.AppendFormat("{0:x1}{1:x1}{2:x1}", sourcePixels[i] >> 4, sourcePixels[i + 1U] >> 4, sourcePixels[i + 2U] >> 4);
+                    sbFileContents.AppendFormat("{0:x1}{1:x1}{2:x1}", sourcePixels[i + 2U] >> 4, sourcePixels[i + 1U] >> 4, sourcePixels[i] >> 4);
                     sbFileContents.AppendLine();
                 }
 
