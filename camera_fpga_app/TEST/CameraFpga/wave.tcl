@@ -37,16 +37,17 @@ add wave -noupdate -expand -group iMPllResetSync /tMCameraFpgaTB/M_CameraFpga/iM
 add wave -noupdate -expand -group iMPllResetSync /tMCameraFpgaTB/M_CameraFpga/iMPllResetSync/piul1SigIn
 add wave -noupdate -expand -group iMPllResetSync /tMCameraFpgaTB/M_CameraFpga/iMPllResetSync/poul1SigOut
 add wave -noupdate -expand -group iMPllResetSync /tMCameraFpgaTB/M_CameraFpga/iMPllResetSync/ulvSyncReg
-add wave -noupdate -expand -group iVgaDriver /tMCameraFpgaTB/M_CameraFpga/iMVgaDriver/eHSyncState
-add wave -noupdate -expand -group iVgaDriver /tMCameraFpgaTB/M_CameraFpga/iMVgaDriver/eVSyncState
-add wave -noupdate -expand -group iVgaDriver -radix unsigned /tMCameraFpgaTB/M_CameraFpga/iMVgaDriver/ul10HSyncClockCounter
-add wave -noupdate -expand -group iVgaDriver -radix unsigned /tMCameraFpgaTB/M_CameraFpga/iMVgaDriver/ul10VSyncLineCounter
-add wave -noupdate -expand -group iVgaDriver /tMCameraFpgaTB/M_CameraFpga/iMVgaDriver/ul1HSyncDisplayActive
-add wave -noupdate -expand -group iVgaDriver /tMCameraFpgaTB/M_CameraFpga/iMVgaDriver/ul1VSyncDisplayActive
-add wave -noupdate -expand -group iVgaDriver /tMCameraFpgaTB/M_CameraFpga/iMVgaDriver/ul1EndOfLine
-add wave -noupdate -expand -group iVgaDriver -radix unsigned /tMCameraFpgaTB/M_CameraFpga/iMVgaDriver/ul19PixelAddr
-add wave -noupdate -expand -group iVgaDriver -radix unsigned /tMCameraFpgaTB/M_CameraFpga/iMVgaDriver/ul17PixelAddr
-add wave -noupdate -expand -group iVgaDriver -radix hexadecimal /tMCameraFpgaTB/M_CameraFpga/iMVgaDriver/ul12RgbOut
+add wave -noupdate /tMCameraFpgaTB/M_CameraFpga/iMVgaDriver/eHSyncState
+add wave -noupdate /tMCameraFpgaTB/M_CameraFpga/iMVgaDriver/eVSyncState
+add wave -noupdate -radix unsigned /tMCameraFpgaTB/M_CameraFpga/iMVgaDriver/ul10HSyncClockCounter
+add wave -noupdate -radix unsigned /tMCameraFpgaTB/M_CameraFpga/iMVgaDriver/ul10VSyncLineCounter
+add wave -noupdate /tMCameraFpgaTB/M_CameraFpga/iMVgaDriver/ul1HSyncDisplayActive
+add wave -noupdate /tMCameraFpgaTB/M_CameraFpga/iMVgaDriver/ul1VSyncDisplayActive
+add wave -noupdate /tMCameraFpgaTB/M_CameraFpga/iMVgaDriver/ul1EndOfLine
+add wave -noupdate -radix unsigned /tMCameraFpgaTB/M_CameraFpga/iMVgaDriver/ul19PixelAddr
+add wave -noupdate -radix unsigned /tMCameraFpgaTB/M_CameraFpga/iMVgaDriver/ul17PixelInAddr
+add wave -noupdate -radix unsigned /tMCameraFpgaTB/M_CameraFpga/iMVgaDriver/ul17PixelOutAddr
+add wave -noupdate -radix hexadecimal /tMCameraFpgaTB/M_CameraFpga/iMVgaDriver/ul12RgbOut
 TreeUpdate [SetDefaultTree]
 WaveRestoreCursors {{Cursor 1} {0 ps} 0}
 quietly wave cursor active 0

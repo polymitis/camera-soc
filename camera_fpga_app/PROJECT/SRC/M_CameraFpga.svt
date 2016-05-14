@@ -67,7 +67,7 @@ module tMCameraFpgaTBTransactor
     
         // reset system
         pisb1FpgaReset_n <= 1'b0;
-        @pIVgaOut.cb_conx
+        @pIVgaOut.cb_conx;
         pisb1FpgaReset_n <= 1'b1;
         
         repeat (1750000) @pIVgaOut.cb_conx; // (35 ms) 2 frames duration

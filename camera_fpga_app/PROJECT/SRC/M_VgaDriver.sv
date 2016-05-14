@@ -4,13 +4,13 @@
 `define M_VGADRIVER_SV
 
 `include "I_VgaOut.sv"
-`include "I_FrameTransfer.sv"
+`include "I_DrawPoint.sv"
 `include "M_FrameBuffer_320x240.sv"
 
 module tMVgaDriver 
 ( // Ports:
-    tIVgaOut.driver         pIVgaOut,
-    tIFrameTransfer.dest    pIFrameIn
+    tIVgaOut.driver pIVgaOut,
+    tIDrawPoint.slv pIDrawPoint
 );
 
     const logic [9:0] cul10HSyncDurationCC       = 96;  // 3.810 us
@@ -63,20 +63,36 @@ module tMVgaDriver
     logic            ul1EndOfLine;
     
     logic [18:0]     ul19PixelAddr;
-    logic [16:0]     ul17PixelAddr; 
+    logic [16:0]     ul17PixelInAddr;
+    logic [16:0]     ul17PixelOutAddr; 
     logic [2:0][3:0] ul12RgbOut;
     
-    // Frame buffer   
+    // Frame buffer 320x240 RGB12
     tMFrameBuffer_320x240 iMFrameBuffer_320x240 
     (
-        .piul1WClock  (pIFrameIn.ul1Clock),
+        .piul1WClock  (pIDrawPoint.ul1Clock),
         .piul1RClock  (pIVgaOut.ul1Clock),
-        .piul1WEnable (1'b0),
-        .piul17WAddr  (17'b0),
-        .piul12WData  (12'b0),
-        .piul17RAddr  (ul17PixelAddr),
+        .piul1WEnable (pIDrawPoint.ul1Update),
+        .piul17WAddr  (ul17PixelInAddr),
+        .piul12WData  (pIDrawPoint.ul12Rgb12Data),
+        .piul17RAddr  (ul17PixelOutAddr),
         .poul12RData  (ul12RgbOut)
     );
+    
+    // Convert [X,Y] point to pixel address in sub-frame buffer.
+    // 
+    // @param [in]  piul9PosX is the pixel horizontal position.
+    // @param [in]  piul9PosY is the pixel vertical position.
+    // @param [out] poul17PixelAddr is the sub-frame buffer pixel address in 320x240 resolution.
+    function automatic void CovertPointToPixelAddressInSubFrameBuffer(
+        input  logic [8:0] piul9PosX,
+        input  logic [8:0] piul9PosY,
+        output logic [16:0] poul17PixelAddr);
+        
+        // frame buffer pixel address 
+        poul17PixelAddr = (piul9PosY * cul10BufHRes) + piul9PosY;
+        
+    endfunction : CovertPointToPixelAddressInSubFrameBuffer
     
     // Select pixel in sub-frame buffer.
     // 
@@ -99,36 +115,28 @@ module tMVgaDriver
         poul17PixelAddr = (ul19VAdjAddress[8:0] * cul10BufHRes) + ul19HAdjAddress[8:0];
         
     endfunction : SelectPixelInSubFrameBuffer
+    
+    // Display input
+    always_comb
+    begin: p_display_input
+        // convert [X,Y] point to pixel address in sub-frame buffer
+        CovertPointToPixelAddressInSubFrameBuffer(pIDrawPoint.ul9PosX,pIDrawPoint.ul9PosY,ul17PixelInAddr);
 
-    always_ff @ (posedge pIFrameIn.ul1Clock)
-    begin: p_frame_bus_ctrl
-        if (pIFrameIn.ul1Reset_n == 1'b0)
-        begin
-            pIFrameIn.ul1Ready <= 1'b0;
-        end
-        else
-        begin
-            pIFrameIn.ul1Ready <= 1'b0;
-        end 
-    end: p_frame_bus_ctrl
+    end: p_display_input
     
     // Display output
     always_comb
     begin: p_display_output
         // select output pixel in sub-frame buffers 
-        SelectPixelInSubFrameBuffer(ul19PixelAddr,ul17PixelAddr);
+        SelectPixelInSubFrameBuffer(ul19PixelAddr,ul17PixelOutAddr);
         
         pIVgaOut.ul1Sync_n = 1'b1; // always in sync
         pIVgaOut.ul1PixelClock = pIVgaOut.ul1Clock; // pass the pll clock to the pixel clock
         
         // RGB output
-        // TODO: PF: Reverse color quantization
         pIVgaOut.ul8Red   = {ul12RgbOut[2], 4'hF};
         pIVgaOut.ul8Green = {ul12RgbOut[1], 4'hF};
         pIVgaOut.ul8Blue  = {ul12RgbOut[0], 4'hF};
-        //pIVgaOut.ul8Red   = 8'hFF;
-        //pIVgaOut.ul8Green = 8'hFF;
-        //pIVgaOut.ul8Blue  = 8'hFF;
     end: p_display_output
     
     // Display output control 

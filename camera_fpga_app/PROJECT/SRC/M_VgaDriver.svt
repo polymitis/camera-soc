@@ -5,7 +5,7 @@
 
 `define TEST
 
-`include "I_FrameTransfer.sv"
+`include "I_DrawPoint.sv"
 `include "M_VgaDriver.sv"
 
 // assert macro
@@ -31,19 +31,19 @@ module tMVgaDriverTB;
     tIVgaOut iIVgaOut(sb1PllClock);
     
     // Frame transfer bus
-    tIFrameTransfer iIFrameTransfer(sb1SysClock);
+    tIDrawPoint iIDrawPoint(sb1SysClock);
     
     // VGA driver
     tMVgaDriver iMVgaDriver 
     ( // Ports:
         .pIVgaOut       (iIVgaOut),
-        .pIFrameIn      (iIFrameTransfer)
+        .pIDrawPoint    (iIDrawPoint)
     );
     
     tMVgaDriverTBTransactor iMVgaDriverTBTransactor
     ( // Ports:
         .pIVgaOut       (iIVgaOut),
-        .pIFrameIn      (iIFrameTransfer)
+        .pIDrawPoint    (iIDrawPoint)
     );
     
 endmodule : tMVgaDriverTB
@@ -51,8 +51,8 @@ endmodule : tMVgaDriverTB
 // Transactor
 module tMVgaDriverTBTransactor 
 ( // Ports:
-    tIVgaOut.tb_driver       pIVgaOut,
-    tIFrameTransfer.tb_src   pIFrameIn
+    tIVgaOut.tb_driver pIVgaOut,
+    tIDrawPoint.tb_slv pIDrawPoint
 );
     timeunit 1ns;
     timeprecision 1ps;
@@ -69,10 +69,10 @@ module tMVgaDriverTBTransactor
         repeat (3) @pIVgaOut.cb_driver;
         pIVgaOut.cb_driver.ul1Reset_n <= 1'b1;
         
-        // reset Frame transfer bus interface
-        pIFrameIn.cb_src.ul1Reset_n <= 1'b0;
-        repeat (3) @pIFrameIn.cb_src;
-        pIFrameIn.cb_src.ul1Reset_n <= 1'b1;
+        // reset draw point interface
+        pIDrawPoint.cb_slv.ul1Reset_n <= 1'b0;
+        repeat (3) @pIDrawPoint.cb_slv;
+        pIDrawPoint.cb_slv.ul1Reset_n <= 1'b1;
         
         //B <= 1'b0;
         //@pIVgaOut.cb_driver;

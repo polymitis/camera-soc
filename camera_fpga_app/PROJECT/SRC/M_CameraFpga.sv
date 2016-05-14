@@ -6,6 +6,7 @@
 `include "I_TRDB_D5M.sv"
 `include "I_VgaOut.sv"
 `include "I_FrameTransfer.sv"
+`include "I_DrawPoint.sv"
 `include "M_PLL.sv"
 `include "M_SyncSig.sv"
 `include "M_TRDB_D5M_Driver.sv"
@@ -43,6 +44,12 @@ module tMCameraFpga
      
     // Frame transfer bus
     tIFrameTransfer iIFrameTransfer
+    ( // Ports:
+        .ul1Clock (ul1SysClock)
+    );
+    
+    // Draw point interface
+    tIDrawPoint iIDrawPoint
     ( // Ports:
         .ul1Clock (ul1SysClock)
     );
@@ -91,7 +98,7 @@ module tMCameraFpga
     tMVgaDriver iMVgaDriver 
     ( // Ports:
         .pIVgaOut       (iIVgaOut),
-        .pIFrameIn      (iIFrameTransfer)
+        .pIDrawPoint    (iIDrawPoint)
     );
     
     // dim unused leds

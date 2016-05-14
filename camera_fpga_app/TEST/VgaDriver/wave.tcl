@@ -11,13 +11,12 @@ add wave -noupdate -expand -group pIVgaOut /tMVgaDriverTB/iMVgaDriver/pIVgaOut/u
 add wave -noupdate -expand -group pIVgaOut /tMVgaDriverTB/iMVgaDriver/pIVgaOut/ul1Sync_n
 add wave -noupdate -expand -group pIVgaOut /tMVgaDriverTB/iMVgaDriver/pIVgaOut/ul1HSync
 add wave -noupdate -expand -group pIVgaOut /tMVgaDriverTB/iMVgaDriver/pIVgaOut/ul1VSync
-add wave -noupdate -expand -group pIFrameIn /tMVgaDriverTB/iMVgaDriver/pIFrameIn/ul1Clock
-add wave -noupdate -expand -group pIFrameIn /tMVgaDriverTB/iMVgaDriver/pIFrameIn/ul1Reset_n
-add wave -noupdate -expand -group pIFrameIn /tMVgaDriverTB/iMVgaDriver/pIFrameIn/ul1Active
-add wave -noupdate -expand -group pIFrameIn /tMVgaDriverTB/iMVgaDriver/pIFrameIn/eMacroBlockType
-add wave -noupdate -expand -group pIFrameIn -radix hexadecimal /tMVgaDriverTB/iMVgaDriver/pIFrameIn/ul24Rgb24Data
-add wave -noupdate -expand -group pIFrameIn /tMVgaDriverTB/iMVgaDriver/pIFrameIn/ul1MacroBlockEnd
-add wave -noupdate -expand -group pIFrameIn /tMVgaDriverTB/iMVgaDriver/pIFrameIn/ul1Ready
+add wave -noupdate -expand -group pIDrawPoint /tMVgaDriverTB/iIDrawPoint/ul1Clock
+add wave -noupdate -expand -group pIDrawPoint /tMVgaDriverTB/iIDrawPoint/ul1Reset_n
+add wave -noupdate -expand -group pIDrawPoint /tMVgaDriverTB/iIDrawPoint/ul1Update
+add wave -noupdate -expand -group pIDrawPoint -radix unsigned /tMVgaDriverTB/iIDrawPoint/ul9PosX
+add wave -noupdate -expand -group pIDrawPoint -radix unsigned /tMVgaDriverTB/iIDrawPoint/ul9PosY
+add wave -noupdate -expand -group pIDrawPoint -radix hexadecimal /tMVgaDriverTB/iIDrawPoint/ul12Rgb12Data
 add wave -noupdate -radix unsigned /tMVgaDriverTB/iMVgaDriver/cul10HSyncDurationCC
 add wave -noupdate -radix unsigned /tMVgaDriverTB/iMVgaDriver/cul10HBackPorchDurationCC
 add wave -noupdate -radix unsigned /tMVgaDriverTB/iMVgaDriver/cul10HDisplayDurationCC
@@ -41,7 +40,8 @@ add wave -noupdate /tMVgaDriverTB/iMVgaDriver/ul1HSyncDisplayActive
 add wave -noupdate /tMVgaDriverTB/iMVgaDriver/ul1VSyncDisplayActive
 add wave -noupdate /tMVgaDriverTB/iMVgaDriver/ul1EndOfLine
 add wave -noupdate -radix unsigned /tMVgaDriverTB/iMVgaDriver/ul19PixelAddr
-add wave -noupdate -radix unsigned /tMVgaDriverTB/iMVgaDriver/ul17PixelAddr
+add wave -noupdate -radix unsigned /tMVgaDriverTB/iMVgaDriver/ul17PixelInAddr
+add wave -noupdate -radix unsigned /tMVgaDriverTB/iMVgaDriver/ul17PixelOutAddr
 add wave -noupdate -radix hexadecimal /tMVgaDriverTB/iMVgaDriver/ul12RgbOut
 TreeUpdate [SetDefaultTree]
 WaveRestoreCursors {{Cursor 1} {0 ps} 0}
@@ -60,4 +60,4 @@ configure wave -griddelta 40
 configure wave -timeline 0
 configure wave -timelineunits us
 update
-WaveRestoreZoom {24251386759 ps} {24251390171 ps}
+WaveRestoreZoom {0 ps} {52500 us}
