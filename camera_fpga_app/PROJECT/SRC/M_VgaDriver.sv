@@ -1,4 +1,4 @@
-// Project   : VGA
+// Project   : Camera FPGA
 // Details   : VGA driver (60Hz, 640x480).
 `ifndef M_VGADRIVER_SV
 `define M_VGADRIVER_SV

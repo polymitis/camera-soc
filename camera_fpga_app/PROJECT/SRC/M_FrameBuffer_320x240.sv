@@ -1,4 +1,4 @@
-// Project   : ADV7123 VGA DAC
+// Project   : Camera FPGA
 // Details   : Frame 320x240 buffer.
 `ifndef M_FRAMEBUFFER_320x240_SV
 `define M_FRAMEBUFFER_320x240_SV
