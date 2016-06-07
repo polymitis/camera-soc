@@ -3,7 +3,9 @@
 `ifndef M_VGACTRL_SV
 `define M_VGACTRL_SV
 
-`timescale 1 ps / 1 ps
+`include "../I_DrawPoint.sv"
+`include "../M_VgaDriver.sv"
+
 module tMVgaCtrl (
         // Command interface
         input  wire        csi_cmd_clock_clk,          // cmd_clock.clk
@@ -29,32 +31,49 @@ module tMVgaCtrl (
         output wire        coe_vga_sync_n,             //          .vga_sync_n
         output wire        coe_vga_hsync,              //          .vga_hsync
         output wire        coe_vga_vsync,              //          .vga_vsync
-        input  wire        coe_vga_pll_locked          //          .vga_pll_locked
+        // External PLL locked signal 
+        input  wire        coe_locked_export           //    locked.export
 	);
-
-	// TODO: integrade VgaDriver
-
+    timeunit 1ns;
+    timeprecision 1ps;
+    
+    logic ul1CmdClock;
+    logic ul1VgaClock;
+	
+    // VGA output interface
+    tIVgaOut iIVgaOut(ul1VgaClock);
+    
+    // Frame transfer bus
+    tIDrawPoint iIDrawPoint(ul1CmdClock);
+    
+    // VGA driver
+    tMVgaDriver iMVgaDriver 
+    ( // Ports:
+        .pIVgaOut       (iIVgaOut),
+        .pIDrawPoint    (iIDrawPoint)
+    );
+    
+    // Command interface clock
+    assign ul1CmdClock = csi_cmd_clock_clk;
+    
+    // VGA clock
+    assign ul1VgaClock = csi_vga_clock_clk;
+    
+    // export command interface
     assign avs_cmd_readdata = 16'b0000000000000000;
-
     assign avs_cmd_waitrequest = 1'b0;
-
     assign avs_cmd_readdatavalid = 1'b0;
-
-    assign coe_vga_pixelclock = 1'b0;
-
-    assign coe_vga_blue = 8'b00000000;
-
-    assign coe_vga_vsync = 1'b0;
-
-    assign coe_vga_red = 8'b00000000;
-
-    assign coe_vga_sync_n = 1'b0;
-
-    assign coe_vga_hsync = 1'b0;
-
-    assign coe_vga_green = 8'b00000000;
-
-    assign coe_vga_blank_n = 1'b0;
+    
+    // export VGA output interface
+    assign iIVgaOut.ul1Reset_n = (~rsi_vga_reset_reset) & coe_locked_export; // release reset only after PLL has locked
+    assign coe_vga_red = iIVgaOut.ul8Red;    
+    assign coe_vga_green = iIVgaOut.ul8Green;  
+    assign coe_vga_blue = iIVgaOut.ul8Blue;
+    assign coe_vga_pixelclock = iIVgaOut.ul1PixelClock;
+    assign coe_vga_blank_n = iIVgaOut.ul1Blank_n;
+    assign coe_vga_sync_n = iIVgaOut.ul1Sync_n; 
+    assign coe_vga_hsync = iIVgaOut.ul1HSync;  
+    assign coe_vga_vsync = iIVgaOut.ul1VSync;
 
 endmodule : tMVgaCtrl
 
