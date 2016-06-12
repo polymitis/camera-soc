@@ -73,6 +73,38 @@
          type = "String";
       }
    }
+   element CameraHPS
+   {
+      datum _originalDeviceFamily
+      {
+         value = "Cyclone V";
+         type = "String";
+      }
+   }
+   element CameraHPS
+   {
+      datum _originalDeviceFamily
+      {
+         value = "Cyclone V";
+         type = "String";
+      }
+   }
+   element CameraHPS
+   {
+      datum _originalDeviceFamily
+      {
+         value = "Cyclone V";
+         type = "String";
+      }
+   }
+   element CameraHPS
+   {
+      datum _originalDeviceFamily
+      {
+         value = "Cyclone V";
+         type = "String";
+      }
+   }
    element clock
    {
       datum _sortIndex
@@ -146,7 +178,7 @@
          type = "boolean";
       }
    }
-   element intr_capturer
+   element irq_capture
    {
       datum _sortIndex
       {
@@ -159,7 +191,7 @@
          type = "boolean";
       }
    }
-   element intr_capturer.avalon_slave_0
+   element irq_capture.mem
    {
       datum _lockedAddress
       {
@@ -917,12 +949,8 @@
   <parameter name="PLI_PORT" value="50000" />
   <parameter name="USE_PLI" value="0" />
  </module>
- <module
-   name="intr_capturer"
-   kind="intr_capturer"
-   version="100.99.98.97"
-   enabled="1">
-  <parameter name="AUTO_INTERRUPT_RECEIVER_INTERRUPTS_USED" value="4" />
+ <module name="irq_capture" kind="InterruptCapture" version="16.0" enabled="1">
+  <parameter name="AUTO_INTERRUPT_INTERRUPTS_USED" value="4" />
   <parameter name="NUM_INTR" value="32" />
  </module>
  <module
@@ -1050,6 +1078,15 @@
    kind="avalon"
    version="16.0"
    start="hps.h2f_lw_axi_master"
+   end="irq_capture.mem">
+  <parameter name="arbitrationPriority" value="1" />
+  <parameter name="baseAddress" value="0x00030000" />
+  <parameter name="defaultConnection" value="false" />
+ </connection>
+ <connection
+   kind="avalon"
+   version="16.0"
+   start="hps.h2f_lw_axi_master"
    end="pio.s1">
   <parameter name="arbitrationPriority" value="1" />
   <parameter name="baseAddress" value="0x00040000" />
@@ -1062,15 +1099,6 @@
    end="jtag_uart.avalon_jtag_slave">
   <parameter name="arbitrationPriority" value="1" />
   <parameter name="baseAddress" value="0x00020000" />
-  <parameter name="defaultConnection" value="false" />
- </connection>
- <connection
-   kind="avalon"
-   version="16.0"
-   start="peripheral_jtag.master"
-   end="intr_capturer.avalon_slave_0">
-  <parameter name="arbitrationPriority" value="1" />
-  <parameter name="baseAddress" value="0x00030000" />
   <parameter name="defaultConnection" value="false" />
  </connection>
  <connection
@@ -1098,6 +1126,15 @@
    end="hps.f2h_axi_slave">
   <parameter name="arbitrationPriority" value="1" />
   <parameter name="baseAddress" value="0x0000" />
+  <parameter name="defaultConnection" value="false" />
+ </connection>
+ <connection
+   kind="avalon"
+   version="16.0"
+   start="peripheral_jtag.master"
+   end="irq_capture.mem">
+  <parameter name="arbitrationPriority" value="1" />
+  <parameter name="baseAddress" value="0x00030000" />
   <parameter name="defaultConnection" value="false" />
  </connection>
  <connection
@@ -1136,11 +1173,6 @@
    kind="clock"
    version="16.0"
    start="clock.clk"
-   end="intr_capturer.clock" />
- <connection
-   kind="clock"
-   version="16.0"
-   start="clock.clk"
    end="drawpoint.cmd_clock" />
  <connection kind="clock" version="16.0" start="clock.clk" end="hps.f2h_axi_clock" />
  <connection kind="clock" version="16.0" start="clock.clk" end="hps.h2f_axi_clock" />
@@ -1149,6 +1181,11 @@
    version="16.0"
    start="clock.clk"
    end="hps.h2f_lw_axi_clock" />
+ <connection
+   kind="clock"
+   version="16.0"
+   start="clock.clk"
+   end="irq_capture.mem_clock" />
  <connection
    kind="interrupt"
    version="16.0"
@@ -1159,7 +1196,7 @@
  <connection
    kind="interrupt"
    version="16.0"
-   start="intr_capturer.interrupt_receiver"
+   start="irq_capture.interrupt"
    end="jtag_uart.irq">
   <parameter name="irqNumber" value="2" />
  </connection>
@@ -1178,6 +1215,11 @@
    version="16.0"
    start="clock.clk_reset"
    end="drawpoint.cmd_reset" />
+ <connection
+   kind="reset"
+   version="16.0"
+   start="clock.clk_reset"
+   end="irq_capture.mem_reset" />
  <connection kind="reset" version="16.0" start="clock.clk_reset" end="sysid.reset" />
  <connection
    kind="reset"
@@ -1190,13 +1232,8 @@
    version="16.0"
    start="clock.clk_reset"
    end="onchip_memory.reset1" />
- <connection
-   kind="reset"
-   version="16.0"
-   start="clock.clk_reset"
-   end="intr_capturer.reset_sink" />
  <interconnectRequirement for="$system" name="qsys_mm.clockCrossingAdapter" value="HANDSHAKE" />
- <interconnectRequirement for="$system" name="qsys_mm.enableEccProtection" value="TRUE" />
+ <interconnectRequirement for="$system" name="qsys_mm.enableEccProtection" value="FALSE" />
  <interconnectRequirement for="$system" name="qsys_mm.insertDefaultSlave" value="FALSE" />
  <interconnectRequirement for="$system" name="qsys_mm.maxAdditionalLatency" value="1" />
 </system>

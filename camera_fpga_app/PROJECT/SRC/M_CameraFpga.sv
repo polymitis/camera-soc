@@ -9,6 +9,8 @@
 `include "I_FrameTransfer.sv"
 `include "I_DrawPoint.sv"
 `include "M_PLL.sv"
+`include "M_EdgeDetect.sv"
+`include "M_HPSReset.sv"
 `include "M_SyncSig.sv"
 `include "M_TRDB_D5M_Driver.sv"
 `include "M_VgaDriver.sv"
@@ -19,7 +21,7 @@ module tMCameraFpga
     output logic [9:0]  poul10LEDR,
     tITRDB_D5M.conx     pITRDB_D5M,
     tIVgaOut.conx       pIVgaOut,
-    tIHPS               pIHPS
+    tIHPS.conx          pIHPS
 ); 
     
     logic ul1SysClock;
@@ -81,7 +83,7 @@ module tMCameraFpga
     iMPllResetSync
     ( // Ports:
         .piul1SyncClock (ul1PllClock),
-        .piul1SigIn     (piul1SysReset_n),
+        .piul1SigIn     (ul1SysReset_n),
         .poul1SigOut    (ul1PllReset_n)
     );
     
@@ -198,55 +200,55 @@ module tMCameraFpga
 		.drawpoint_dpm_dpm_ul9posx          (iIDrawPoint.ul9PosX),       //                        .dpm_ul9posx
 		.drawpoint_dpm_dpm_ul9posy          (iIDrawPoint.ul9PosY),       //                        .dpm_ul9posy
 		.drawpoint_dpm_dpm_ul12rgb12data    (iIDrawPoint.ul12Rgb12Data), //                        .dpm_ul12rgb12data
-		.drawpoint_dpm_dpm_ul1clock         (ul1DrawPointClock),         //                        .dpm_ul1clock	
+		.drawpoint_dpm_dpm_ul1clock         (ul1DrawPointClock)          //                        .dpm_ul1clock	
 	);
     
     // Source/Probe megawizard instance
-    hps_reset hps_reset_inst (
-      .source_clk (ul1SysClock),
-      .source     (ul3HpsResetReq)
+    tMHPSReset iMHPSReset (
+      .piul1SourceClock (ul1SysClock),
+      .poul3Source      (ul3HpsResetReq)
     );
 
-    altera_edge_detector 
+    tMEdgeDetect 
     #(// Parameters:
         .PULSE_EXT (6),
         .EDGE_TYPE (1),
         .IGNORE_RST_WHILE_BUSY (1)
     ) 
-    pulse_cold_reset 
+    iPulseColdReset 
     ( // Ports:
-        .clk       (ul1SysClock),
-        .rst_n     (ul1SysReset_n),
-        .signal_in (ul3HpsResetReq[0]),
-        .pulse_out (ul1HpsColdReset)
+        .ul1Clock       (ul1SysClock),
+        .ul1Reset_n     (ul1SysReset_n),
+        .ul1SignalIn    (ul3HpsResetReq[0]),
+        .ul1PulseOut    (ul1HpsColdReset)
     );
 
-    altera_edge_detector 
+    tMEdgeDetect 
     #(// Parameters:
         .PULSE_EXT (2),
         .EDGE_TYPE (1),
         .IGNORE_RST_WHILE_BUSY (1)
     )
-    pulse_warm_reset 
+    iPulseWarmReset 
     ( // Ports:
-        .clk       (ul1SysClock),
-        .rst_n     (ul1SysReset_n),
-        .signal_in (ul3HpsResetReq[1]),
-        .pulse_out (ul1HpsWarmReset)
+        .ul1Clock       (ul1SysClock),
+        .ul1Reset_n     (ul1SysReset_n),
+        .ul1SignalIn    (ul3HpsResetReq[1]),
+        .ul1PulseOut    (ul1HpsWarmReset)
     );
     
-    altera_edge_detector 
+    tMEdgeDetect 
     #(// Parameters:
         .PULSE_EXT (32),
         .EDGE_TYPE (1),
         .IGNORE_RST_WHILE_BUSY (1)
     )
-    pulse_debug_reset 
+    iPulseDebugReset 
     ( // Ports:
-      .clk       (ul1SysClock),
-      .rst_n     (ul1SysReset_n),
-      .signal_in (ul3HpsResetReq[2]),
-      .pulse_out (ul1HpsDebugReset)
+        .ul1Clock       (ul1SysClock),
+        .ul1Reset_n     (ul1SysReset_n),
+        .ul1SignalIn    (ul3HpsResetReq[2]),
+        .ul1PulseOut    (ul1HpsDebugReset)
     );
     
     // connect LEDs to HPS

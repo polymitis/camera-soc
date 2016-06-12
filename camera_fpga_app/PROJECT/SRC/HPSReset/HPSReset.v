@@ -1,10 +1,10 @@
-// megafunction wizard: %In-System Sources and Probes%VBB%
+// megafunction wizard: %In-System Sources and Probes%
 // GENERATION: STANDARD
 // VERSION: WM1.0
 // MODULE: altsource_probe 
 
 // ============================================================
-// File Name: hps_reset.v
+// File Name: HPSReset.v
 // Megafunction Name(s):
 // 			altsource_probe
 //
@@ -16,6 +16,7 @@
 //
 // 16.0.0 Build 211 04/27/2016 SJ Lite Edition
 // ************************************************************
+
 
 //Copyright (C) 1991-2016 Altera Corporation. All rights reserved.
 //Your use of Altera Corporation's design tools, logic functions 
@@ -32,7 +33,11 @@
 //authorized distributors.  Please refer to the applicable 
 //agreement for further details.
 
-module hps_reset (
+
+// synopsys translate_off
+`timescale 1 ps / 1 ps
+// synopsys translate_on
+module HPSReset (
 	probe,
 	source_clk,
 	source);
@@ -40,6 +45,43 @@ module hps_reset (
 	input	  probe;
 	input	  source_clk;
 	output	[2:0]  source;
+
+	wire [2:0] sub_wire0;
+	wire [2:0] source = sub_wire0[2:0];
+
+	altsource_probe	altsource_probe_component (
+				.probe (probe),
+				.source_clk (source_clk),
+				.source (sub_wire0)
+				// synopsys translate_off
+				,
+				.clr (),
+				.ena (),
+				.ir_in (),
+				.ir_out (),
+				.jtag_state_cdr (),
+				.jtag_state_cir (),
+				.jtag_state_e1dr (),
+				.jtag_state_sdr (),
+				.jtag_state_tlr (),
+				.jtag_state_udr (),
+				.jtag_state_uir (),
+				.raw_tck (),
+				.source_ena (),
+				.tdi (),
+				.tdo (),
+				.usr1 ()
+				// synopsys translate_on
+				);
+	defparam
+		altsource_probe_component.enable_metastability = "YES",
+		altsource_probe_component.instance_id = "RST",
+		altsource_probe_component.probe_width = 0,
+		altsource_probe_component.sld_auto_instance_index = "YES",
+		altsource_probe_component.sld_instance_index = 0,
+		altsource_probe_component.source_initial_value = " 0",
+		altsource_probe_component.source_width = 3;
+
 
 endmodule
 
@@ -61,9 +103,9 @@ endmodule
 // Retrieval info: CONNECT: @probe 0 0 0 0 probe 0 0 0 0
 // Retrieval info: CONNECT: @source_clk 0 0 0 0 source_clk 0 0 0 0
 // Retrieval info: CONNECT: source 0 0 3 0 @source 0 0 3 0
-// Retrieval info: GEN_FILE: TYPE_NORMAL hps_reset.v TRUE
-// Retrieval info: GEN_FILE: TYPE_NORMAL hps_reset.inc FALSE
-// Retrieval info: GEN_FILE: TYPE_NORMAL hps_reset.cmp FALSE
-// Retrieval info: GEN_FILE: TYPE_NORMAL hps_reset.bsf FALSE
-// Retrieval info: GEN_FILE: TYPE_NORMAL hps_reset_inst.v FALSE
-// Retrieval info: GEN_FILE: TYPE_NORMAL hps_reset_bb.v TRUE
+// Retrieval info: GEN_FILE: TYPE_NORMAL HPSReset.v TRUE
+// Retrieval info: GEN_FILE: TYPE_NORMAL HPSReset.inc FALSE
+// Retrieval info: GEN_FILE: TYPE_NORMAL HPSReset.cmp FALSE
+// Retrieval info: GEN_FILE: TYPE_NORMAL HPSReset.bsf FALSE
+// Retrieval info: GEN_FILE: TYPE_NORMAL HPSReset_inst.v FALSE
+// Retrieval info: GEN_FILE: TYPE_NORMAL HPSReset_bb.v FALSE
