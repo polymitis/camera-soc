@@ -12,8 +12,6 @@ module tMVgaDriver
     tIVgaOut.driver pIVgaOut,
     tIDrawPoint.slv pIDrawPoint
 );
-    timeunit 1ns;
-    timeprecision 1ps;
 
     const logic [9:0] cul10HSyncDurationCC       = 96;  // 3.810 us
     const logic [9:0] cul10HBackPorchDurationCC  = 48;  // 1.910 us
