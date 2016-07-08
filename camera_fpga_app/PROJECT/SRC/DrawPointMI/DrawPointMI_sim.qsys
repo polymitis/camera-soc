@@ -9,6 +9,22 @@
    categories="System" />
  <parameter name="bonusData"><![CDATA[bonusData 
 {
+   element DrawPointMI_sim
+   {
+      datum _originalDeviceFamily
+      {
+         value = "Cyclone V";
+         type = "String";
+      }
+   }
+   element DrawPointMI_sim
+   {
+      datum _originalDeviceFamily
+      {
+         value = "Cyclone V";
+         type = "String";
+      }
+   }
    element avm_bfm
    {
       datum _sortIndex
@@ -71,7 +87,7 @@
    kind="altera_avalon_mm_master_bfm"
    version="16.0"
    enabled="1">
-  <parameter name="ADDRESS_UNITS" value="SYMBOLS" />
+  <parameter name="ADDRESS_UNITS" value="WORDS" />
   <parameter name="ASSERT_HIGH_ARBITERLOCK" value="1" />
   <parameter name="ASSERT_HIGH_BYTEENABLE" value="1" />
   <parameter name="ASSERT_HIGH_LOCK" value="1" />
@@ -80,7 +96,7 @@
   <parameter name="ASSERT_HIGH_RESET" value="1" />
   <parameter name="ASSERT_HIGH_WAITREQUEST" value="1" />
   <parameter name="ASSERT_HIGH_WRITE" value="1" />
-  <parameter name="AV_ADDRESS_W" value="18" />
+  <parameter name="AV_ADDRESS_W" value="17" />
   <parameter name="AV_ALWAYS_BURST_MAX_BURST" value="0" />
   <parameter name="AV_BURSTCOUNT_W" value="16" />
   <parameter name="AV_BURST_BNDR_ONLY" value="0" />
@@ -102,7 +118,7 @@
   <parameter name="USE_BEGIN_BURST_TRANSFER" value="1" />
   <parameter name="USE_BEGIN_TRANSFER" value="0" />
   <parameter name="USE_BURSTCOUNT" value="1" />
-  <parameter name="USE_BYTE_ENABLE" value="1" />
+  <parameter name="USE_BYTE_ENABLE" value="0" />
   <parameter name="USE_CLKEN" value="0" />
   <parameter name="USE_DEBUGACCESS" value="0" />
   <parameter name="USE_LOCK" value="0" />

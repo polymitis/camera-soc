@@ -1,0 +1,91 @@
+// Project   : Camera FPGA
+// Details   : DrawPointMI testbench.
+`ifndef M_DRAWPOINTMI_SVT
+`define M_DRAWPOINTMI_SVT
+
+`define TEST
+
+`include "../I_DrawPoint.sv"
+`include "DrawPointMI_sim/simulation/DrawPointMI_sim.v"
+
+// assert macro
+`define ASSERT(__cond) assert (__cond) else $fatal(2,`"(__cond)`")
+
+// VgaDriver testbench top module
+module tMDrawPointMITB;
+    timeunit 1ns;
+    timeprecision 1ps;
+    
+    localparam time SYS_CLOCK_PERIOD = 20ns; // 50 MHz      
+    
+    // System clock
+    bit sb1SysClock;
+    always #(SYS_CLOCK_PERIOD/2) sb1SysClock <= ~sb1SysClock;
+    
+    // System reset
+    bit ul1SysReset_n;      
+    
+    // Frame transfer bus
+    tIDrawPoint iIDrawPoint(sb1SysClock);
+    
+    // VGA driver
+    DrawPointMI_sim iDrawPointMI_sim 
+    ( // Ports:
+        .clk_clk                           (sb1SysClock),                        
+        .drawpoint_dpm_dpm_ul1reset_n      (iIDrawPoint.ul1Reset_n),   
+        .drawpoint_dpm_dpm_ul1update       (iIDrawPoint.ul1Update),    
+        .drawpoint_dpm_dpm_ul9posx         (iIDrawPoint.ul9PosX),      
+        .drawpoint_dpm_dpm_ul9posy         (iIDrawPoint.ul9PosY),      
+        .drawpoint_dpm_dpm_ul12rgb12data   (iIDrawPoint.ul12Rgb12Data),
+        .drawpoint_dpm_dpm_ul1clock        (iIDrawPoint.ul1Clock),     
+        .reset_reset_n                     (ul1SysReset_n) 
+    );
+    
+    tMDrawPointMITBTransactor iMDrawPointMITBTransactor
+    ( // Ports:
+        .clk_clk       (sb1SysClock),    
+        .reset_reset_n (ul1SysReset_n),  
+        .pIDrawPoint   (iIDrawPoint)                   
+    );
+    
+endmodule : tMDrawPointMITB
+
+// Transactor
+module tMDrawPointMITBTransactor 
+( // Ports:  
+    input  bit         clk_clk,
+    output bit         reset_reset_n,  
+    tIDrawPoint.tb_mst pIDrawPoint  
+);
+    timeunit 1ns;
+    timeprecision 1ps;
+    
+    //bit A, B;
+    
+    default clocking tb_cb @ (posedge clk_clk);
+        output #1 reset_reset_n; 
+    endclocking
+    
+    initial 
+    begin : Main
+        //A <= 1'b1;
+        //B <= 1'b1;
+        
+        // init all outputs
+        reset_reset_n = 1'b0;
+        
+        // reset draw point interface
+        ##1 tb_cb.reset_reset_n <= 1'b0;
+        ##1 tb_cb.reset_reset_n <= 1'b1;
+        
+        //B <= 1'b0;
+        //##1;
+        //a1: `ASSERT(A == B);
+        
+        ##875000; // (35 ms) 2 frames duration
+
+    end : Main
+
+endmodule : tMDrawPointMITBTransactor
+
+`endif//M_DRAWPOINTMI_SVT
