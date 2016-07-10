@@ -1,5 +1,5 @@
 // Project   : Camera FPGA
-// Details   : DrawPointMI testbench.
+// Details   : DrawPoint master interface testbench.
 `ifndef M_DRAWPOINTMI_SVT
 `define M_DRAWPOINTMI_SVT
 
@@ -11,8 +11,12 @@
 // assert macro
 `define ASSERT(__cond) assert (__cond) else $fatal(2,`"(__cond)`")
 
+// Avalon MM BFM
+import avalon_mm_pkg::*;
+`define AVM_BFM $root.tMDrawPointMI_tb.iDrawPointMI_sim.avm_bfm
+
 // VgaDriver testbench top module
-module tMDrawPointMITB;
+module tMDrawPointMI_tb;
     timeunit 1ns;
     timeprecision 1ps;
     
@@ -25,10 +29,13 @@ module tMDrawPointMITB;
     // System reset
     bit ul1SysReset_n;      
     
-    // Frame transfer bus
-    tIDrawPoint iIDrawPoint(sb1SysClock);
+    // DrawPoint master clock
+    bit sb1DpmClock;
     
-    // VGA driver
+    // DrawPoint master interface
+    tIDrawPoint iIDrawPoint(sb1DpmClock);
+    
+    // DrawPoint master interface simulation model instance
     DrawPointMI_sim iDrawPointMI_sim 
     ( // Ports:
         .clk_clk                           (sb1SysClock),                        
@@ -37,21 +44,21 @@ module tMDrawPointMITB;
         .drawpoint_dpm_dpm_ul9posx         (iIDrawPoint.ul9PosX),      
         .drawpoint_dpm_dpm_ul9posy         (iIDrawPoint.ul9PosY),      
         .drawpoint_dpm_dpm_ul12rgb12data   (iIDrawPoint.ul12Rgb12Data),
-        .drawpoint_dpm_dpm_ul1clock        (iIDrawPoint.ul1Clock),     
+        .drawpoint_dpm_dpm_ul1clock        (sb1DpmClock),     
         .reset_reset_n                     (ul1SysReset_n) 
     );
     
-    tMDrawPointMITBTransactor iMDrawPointMITBTransactor
+    tMDrawPointMI_trn iMDrawPointMI_trn
     ( // Ports:
         .clk_clk       (sb1SysClock),    
         .reset_reset_n (ul1SysReset_n),  
         .pIDrawPoint   (iIDrawPoint)                   
     );
     
-endmodule : tMDrawPointMITB
+endmodule : tMDrawPointMI_tb
 
 // Transactor
-module tMDrawPointMITBTransactor 
+module tMDrawPointMI_trn 
 ( // Ports:  
     input  bit         clk_clk,
     output bit         reset_reset_n,  
@@ -68,8 +75,6 @@ module tMDrawPointMITBTransactor
     
     initial 
     begin : Main
-        //A <= 1'b1;
-        //B <= 1'b1;
         
         // init all outputs
         reset_reset_n = 1'b0;
@@ -78,14 +83,69 @@ module tMDrawPointMITBTransactor
         ##1 tb_cb.reset_reset_n <= 1'b0;
         ##1 tb_cb.reset_reset_n <= 1'b1;
         
-        //B <= 1'b0;
-        //##1;
-        //a1: `ASSERT(A == B);
+        ##10 `AVM_BFM.init();
         
-        ##875000; // (35 ms) 2 frames duration
+        // Read Major version
+        `AVM_BFM.set_command_address(16'h0000);
+        `AVM_BFM.set_command_burst_count(10'b0000000001);
+        `AVM_BFM.set_command_burst_size(10'b0000000001);
+        `AVM_BFM.set_command_byte_enable(2'b11,0);
+        `AVM_BFM.set_command_request(REQ_READ);
+        `AVM_BFM.push_command();
+        
+        ##2 `AVM_BFM.pop_response();
+        a1: `ASSERT(`AVM_BFM.get_response_data(0) == 16'h00FF);
+        
+        // Read Minor version
+        `AVM_BFM.set_command_address(16'h0001);
+        `AVM_BFM.set_command_burst_count(10'b0000000001);
+        `AVM_BFM.set_command_burst_size(10'b0000000001);
+        `AVM_BFM.set_command_byte_enable(2'b11,0);
+        `AVM_BFM.set_command_request(REQ_READ);
+        `AVM_BFM.push_command();
+        
+        ##2 `AVM_BFM.pop_response();
+        a2: `ASSERT(`AVM_BFM.get_response_data(0) == 16'h0000);
+        
+        // Read revision number
+        `AVM_BFM.set_command_address(16'h0002);
+        `AVM_BFM.set_command_burst_count(10'b0000000001);
+        `AVM_BFM.set_command_burst_size(10'b0000000001);
+        `AVM_BFM.set_command_byte_enable(2'b11,0);
+        `AVM_BFM.set_command_request(REQ_READ);
+        `AVM_BFM.push_command();
+        
+        ##2 `AVM_BFM.pop_response();
+        a3: `ASSERT(`AVM_BFM.get_response_data(0) == 16'h0000);
+        
+        // Read build number
+        `AVM_BFM.set_command_address(16'h0003);
+        `AVM_BFM.set_command_burst_count(10'b0000000001);
+        `AVM_BFM.set_command_burst_size(10'b0000000001);
+        `AVM_BFM.set_command_byte_enable(2'b11,0);
+        `AVM_BFM.set_command_request(REQ_READ);
+        `AVM_BFM.push_command();
+        
+        ##2 `AVM_BFM.pop_response();
+        a4: `ASSERT(`AVM_BFM.get_response_data(0) == 16'h0001);
+        
+        // Read burst version Major.Minor.Revision.Build
+        `AVM_BFM.set_command_address(16'h0000);
+        `AVM_BFM.set_command_burst_count(10'b0000000100);
+        `AVM_BFM.set_command_burst_size(10'b0000000100);
+        `AVM_BFM.set_command_request(REQ_READ);
+        `AVM_BFM.push_command();
+        
+        ##8 `AVM_BFM.pop_response();
+        a5: `ASSERT(`AVM_BFM.get_response_data(0) == 16'h00FF);
+        a6: `ASSERT(`AVM_BFM.get_response_data(1) == 16'h0000);
+        a7: `ASSERT(`AVM_BFM.get_response_data(2) == 16'h0000);
+        a8: `ASSERT(`AVM_BFM.get_response_data(3) == 16'h0001);
+        
+        ##20; $finish;
 
     end : Main
 
-endmodule : tMDrawPointMITBTransactor
+endmodule : tMDrawPointMI_trn
 
 `endif//M_DRAWPOINTMI_SVT

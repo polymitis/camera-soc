@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <EnsembleReport name="CameraHPS" kind="CameraHPS" version="1.0" fabric="QSYS">
  <!-- Format version 16.0 211 (Future versions may contain additional information.) -->
- <!-- 2016.06.12.15:34:54 -->
+ <!-- 2016.07.10.19:52:07 -->
  <!-- A collection of modules and connections -->
  <parameter name="AUTO_GENERATION_ID">
   <type>java.lang.Integer</type>
-  <value>1465742093</value>
+  <value>1468176726</value>
   <derived>false</derived>
   <enabled>true</enabled>
   <visible>false</visible>
@@ -606,7 +606,7 @@ parameters are a RESULT of the module parameters. -->
    </parameter>
    <parameter name="addressSpan">
     <type>java.math.BigInteger</type>
-    <value>262144</value>
+    <value>131072</value>
     <derived>true</derived>
     <enabled>true</enabled>
     <visible>false</visible>
@@ -905,7 +905,7 @@ parameters are a RESULT of the module parameters. -->
    <port>
     <name>avs_cmd_address</name>
     <direction>Input</direction>
-    <width>17</width>
+    <width>16</width>
     <role>address</role>
    </port>
    <port>
@@ -941,7 +941,7 @@ parameters are a RESULT of the module parameters. -->
    <port>
     <name>avs_cmd_burstcount</name>
     <direction>Input</direction>
-    <width>16</width>
+    <width>10</width>
     <role>burstcount</role>
    </port>
    <port>
@@ -16861,7 +16861,7 @@ parameters are a RESULT of the module parameters. -->
     <slaveName>cmd</slaveName>
     <name>drawpoint.cmd</name>
     <baseAddress>524288</baseAddress>
-    <span>262144</span>
+    <span>131072</span>
    </memoryBlock>
    <memoryBlock>
     <isBridge>false</isBridge>
@@ -44214,7 +44214,7 @@ parameters are a RESULT of the module parameters. -->
     <slaveName>cmd</slaveName>
     <name>drawpoint.cmd</name>
     <baseAddress>524288</baseAddress>
-    <span>262144</span>
+    <span>131072</span>
    </memoryBlock>
    <memoryBlock>
     <isBridge>false</isBridge>
@@ -46117,7 +46117,7 @@ parameters are a RESULT of the module parameters. -->
     <slaveName>cmd</slaveName>
     <name>drawpoint.cmd</name>
     <baseAddress>3221749760</baseAddress>
-    <span>262144</span>
+    <span>131072</span>
    </memoryBlock>
    <memoryBlock>
     <isBridge>false</isBridge>
@@ -46984,7 +46984,7 @@ parameters are a RESULT of the module parameters. -->
     <slaveName>cmd</slaveName>
     <name>drawpoint.cmd</name>
     <baseAddress>3221749760</baseAddress>
-    <span>262144</span>
+    <span>131072</span>
    </memoryBlock>
    <memoryBlock>
     <isBridge>false</isBridge>
@@ -78143,7 +78143,7 @@ parameters are a RESULT of the module parameters. -->
     <slaveName>cmd</slaveName>
     <name>drawpoint.cmd</name>
     <baseAddress>524288</baseAddress>
-    <span>262144</span>
+    <span>131072</span>
    </memoryBlock>
    <memoryBlock>
     <isBridge>false</isBridge>
@@ -79027,7 +79027,7 @@ the requested settings for a module instance. -->
   </assignment>
   <assignment>
    <name>embeddedsw.CMacro.TIMESTAMP</name>
-   <value>1465742093</value>
+   <value>1468176726</value>
   </assignment>
   <assignment>
    <name>embeddedsw.dts.compatible</name>
@@ -79047,7 +79047,7 @@ the requested settings for a module instance. -->
   </assignment>
   <assignment>
    <name>embeddedsw.dts.params.timestamp</name>
-   <value>1465742093</value>
+   <value>1468176726</value>
   </assignment>
   <assignment>
    <name>embeddedsw.dts.vendor</name>
@@ -79063,7 +79063,7 @@ the requested settings for a module instance. -->
   </parameter>
   <parameter name="timestamp">
    <type>int</type>
-   <value>1465742093</value>
+   <value>1468176726</value>
    <derived>true</derived>
    <enabled>false</enabled>
    <visible>false</visible>

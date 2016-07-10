@@ -25,6 +25,14 @@
          type = "String";
       }
    }
+   element DrawPointMI_sim
+   {
+      datum _originalDeviceFamily
+      {
+         value = "Cyclone V";
+         type = "String";
+      }
+   }
    element avm_bfm
    {
       datum _sortIndex
@@ -96,9 +104,9 @@
   <parameter name="ASSERT_HIGH_RESET" value="1" />
   <parameter name="ASSERT_HIGH_WAITREQUEST" value="1" />
   <parameter name="ASSERT_HIGH_WRITE" value="1" />
-  <parameter name="AV_ADDRESS_W" value="17" />
+  <parameter name="AV_ADDRESS_W" value="16" />
   <parameter name="AV_ALWAYS_BURST_MAX_BURST" value="0" />
-  <parameter name="AV_BURSTCOUNT_W" value="16" />
+  <parameter name="AV_BURSTCOUNT_W" value="10" />
   <parameter name="AV_BURST_BNDR_ONLY" value="0" />
   <parameter name="AV_BURST_LINEWRAP" value="0" />
   <parameter name="AV_CONSTANT_BURST_BEHAVIOR" value="1" />

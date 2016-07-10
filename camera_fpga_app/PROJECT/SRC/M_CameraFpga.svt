@@ -41,7 +41,7 @@ module tMCameraFpgaTB;
         .pIVgaOut           (iIVgaOut)
     );
     
-    tMCameraFpgaTBTransactor iMCameraFpgaTBTransactor
+    tMCameraFpga_trn iMCameraFpga_trn
     ( // Ports:
         .pisb1FpgaReset_n   (sb1FpgaReset_n),
         .poul10LEDR         (ul10LEDR),
@@ -52,7 +52,7 @@ module tMCameraFpgaTB;
 endmodule : tMCameraFpgaTB
 
 // Transactor
-module tMCameraFpgaTBTransactor 
+module tMCameraFpga_trn 
 ( // Ports:
     output bit         pisb1FpgaReset_n,
     input  logic [9:0] poul10LEDR,
@@ -74,6 +74,6 @@ module tMCameraFpgaTBTransactor
 
     end : Main
 
-endmodule : tMCameraFpgaTBTransactor
+endmodule : tMCameraFpga_trn
 
 `endif//M_CAMERAFPGA_SVT
