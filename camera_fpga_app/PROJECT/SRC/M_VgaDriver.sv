@@ -13,25 +13,25 @@ module tMVgaDriver
     tIDrawPoint.slv pIDrawPoint
 );
 
-    const logic [9:0] cul10HSyncDurationCC       = 96;  // 3.810 us
-    const logic [9:0] cul10HBackPorchDurationCC  = 48;  // 1.910 us
-    const logic [9:0] cul10HDisplayDurationCC    = 640; // 25.40 us
-    const logic [9:0] cul10HFrontPorchDurationCC = 16;  // 0.636 us
+    const logic [9:0] cul10HSyncDurationCC       = 10'd96;  // 3.810 us
+    const logic [9:0] cul10HBackPorchDurationCC  = 10'd48;  // 1.910 us
+    const logic [9:0] cul10HDisplayDurationCC    = 10'd640; // 25.40 us
+    const logic [9:0] cul10HFrontPorchDurationCC = 10'd16;  // 0.636 us
     
-    const logic [9:0] cul10VSyncDurationLC       = 2;
-    const logic [9:0] cul10VBackPorchDurationLC  = 33;
-    const logic [9:0] cul10VDisplayDurationLC    = 480;
-    const logic [9:0] cul10VFrontPorchDurationLC = 10;
+    const logic [9:0] cul10VSyncDurationLC       = 10'd2;
+    const logic [9:0] cul10VBackPorchDurationLC  = 10'd33;
+    const logic [9:0] cul10VDisplayDurationLC    = 10'd480;
+    const logic [9:0] cul10VFrontPorchDurationLC = 10'd10;
     
-    const logic [9:0] cul10HRes = 640; 
-    const logic [9:0] cul10VRes = 480;
+    const logic [9:0] cul10HRes = 10'd640; 
+    const logic [9:0] cul10VRes = 10'd480;
     const logic [18:0] cul19Res = cul10HRes * cul10VRes;
     
-    const logic [9:0] cul10BufHRes = 320; 
-    const logic [9:0] cul10BufVRes = 240;
+    const logic [9:0] cul10BufHRes = 10'd320; 
+    const logic [9:0] cul10BufVRes = 10'd240;
     const logic [18:0] cul19BufRes = cul10BufHRes * cul10BufVRes;
     
-    const logic [3:0] cul4ZoomFactor = 2;
+    const logic [3:0] cul4ZoomFactor = 4'd2;
     
     typedef enum logic [3:0]
     {
@@ -144,7 +144,7 @@ module tMVgaDriver
     begin: p_display_output_ctrl
         if (pIVgaOut.ul1Reset_n == 1'b0)
         begin
-            ul19PixelAddr <= 'b0;
+            ul19PixelAddr <= 19'b0;
         end
         else
         begin
@@ -152,12 +152,12 @@ module tMVgaDriver
             
             if (ul19PixelAddr == cul19Res)
             begin
-                ul19PixelAddr <= 'b0;
+                ul19PixelAddr <= 19'b0;
             end
             else if (ul1HSyncDisplayActive == 1'b1 && ul1VSyncDisplayActive == 1'b1)
             begin
                 pIVgaOut.ul1Blank_n <= 1'b1;
-                ul19PixelAddr <= ul19PixelAddr + 1'b1;
+                ul19PixelAddr <= ul19PixelAddr + 1'd1;
             end
         end
     end: p_display_output_ctrl
@@ -167,7 +167,7 @@ module tMVgaDriver
     begin: p_horizontal_sync_ctrl
         if (pIVgaOut.ul1Reset_n == 1'b0) 
         begin
-            ul10HSyncClockCounter <= 'b0;            
+            ul10HSyncClockCounter <= 10'b0;            
             pIVgaOut.ul1HSync <= 1'b1;
             ul1HSyncDisplayActive <= 1'b0;
             ul1EndOfLine <= 1'b0;
@@ -176,7 +176,7 @@ module tMVgaDriver
         else 
         begin
             
-            ul10HSyncClockCounter <= ul10HSyncClockCounter + 1'b1;
+            ul10HSyncClockCounter <= ul10HSyncClockCounter + 1'd1;
             
             pIVgaOut.ul1HSync <= 1'b1;
             
@@ -191,7 +191,7 @@ module tMVgaDriver
                     pIVgaOut.ul1HSync <= 1'b0;
                     if (ul10HSyncClockCounter == cul10HSyncDurationCC)
                     begin
-                        ul10HSyncClockCounter <= 'b0;
+                        ul10HSyncClockCounter <= 10'b0;
                         eHSyncState <= HSYNC_STATE_BACKPORCH;
                     end 
                 end
@@ -200,7 +200,7 @@ module tMVgaDriver
                 begin
                     if (ul10HSyncClockCounter == cul10HBackPorchDurationCC)
                     begin
-                        ul10HSyncClockCounter <= 'b0;
+                        ul10HSyncClockCounter <= 10'b0;
                         eHSyncState <= HSYNC_STATE_DISPLAY;
                     end    
                 end
@@ -210,7 +210,7 @@ module tMVgaDriver
                     ul1HSyncDisplayActive <= 1'b1;
                     if (ul10HSyncClockCounter == cul10HDisplayDurationCC-1)
                     begin
-                        ul10HSyncClockCounter <= 'b0;
+                        ul10HSyncClockCounter <= 10'b0;
                         eHSyncState <= HSYNC_STATE_FRONTPORCH;
                     end                      
                 end
@@ -220,7 +220,7 @@ module tMVgaDriver
                     if (ul10HSyncClockCounter == cul10HFrontPorchDurationCC)
                     begin
                         ul1EndOfLine <= 1'b1;
-                        ul10HSyncClockCounter <= 'b0;
+                        ul10HSyncClockCounter <= 10'b0;
                         eHSyncState <= HSYNC_STATE_SYNC;
                     end
                 end
@@ -233,7 +233,7 @@ module tMVgaDriver
     begin: p_vertical_sync_ctrl
         if (pIVgaOut.ul1Reset_n == 1'b0) 
         begin
-            ul10VSyncLineCounter <= 'b0;
+            ul10VSyncLineCounter <= 10'b0;
             pIVgaOut.ul1VSync <= 1'b1;
             ul1VSyncDisplayActive <= 1'b0;
             eVSyncState <= VSYNC_STATE_SYNC;
@@ -243,7 +243,7 @@ module tMVgaDriver
         
             if (ul1EndOfLine == 1'b1)
             begin
-                ul10VSyncLineCounter <= ul10VSyncLineCounter + 1'b1;
+                ul10VSyncLineCounter <= ul10VSyncLineCounter + 1'd1;
             end
             
             pIVgaOut.ul1VSync <= 1'b1;
@@ -257,7 +257,7 @@ module tMVgaDriver
                     pIVgaOut.ul1VSync <= 1'b0;
                     if (ul10VSyncLineCounter == cul10VSyncDurationLC)
                     begin
-                        ul10VSyncLineCounter <= 'b0;
+                        ul10VSyncLineCounter <= 10'b0;
                         eVSyncState <= VSYNC_STATE_BACKPORCH;
                     end 
                 end
@@ -266,7 +266,7 @@ module tMVgaDriver
                 begin
                     if (ul10VSyncLineCounter == cul10VBackPorchDurationLC)
                     begin
-                        ul10VSyncLineCounter <= 'b0;
+                        ul10VSyncLineCounter <= 10'b0;
                         eVSyncState <= VSYNC_STATE_DISPLAY;
                     end 
                 end
@@ -276,7 +276,7 @@ module tMVgaDriver
                     ul1VSyncDisplayActive <= 1'b1;
                     if (ul10VSyncLineCounter == cul10VDisplayDurationLC)
                     begin
-                        ul10VSyncLineCounter <= 'b0;
+                        ul10VSyncLineCounter <= 10'b0;
                         eVSyncState <= VSYNC_STATE_FRONTPORCH;
                     end
                 end
@@ -285,7 +285,7 @@ module tMVgaDriver
                 begin
                     if (ul10VSyncLineCounter == cul10VFrontPorchDurationLC)
                     begin
-                        ul10VSyncLineCounter <= 'b0;
+                        ul10VSyncLineCounter <= 10'b0;
                         eVSyncState <= VSYNC_STATE_SYNC;
                     end
                 end

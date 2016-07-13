@@ -136,13 +136,15 @@ module tMDrawPointMI_trn
         `AVM_BFM.set_command_request(REQ_READ);
         `AVM_BFM.push_command();
         
-        ##8 `AVM_BFM.pop_response();
+        ##6 `AVM_BFM.pop_response();
         a5: `ASSERT(`AVM_BFM.get_response_data(0) == 16'h00FF);
         a6: `ASSERT(`AVM_BFM.get_response_data(1) == 16'h0000);
         a7: `ASSERT(`AVM_BFM.get_response_data(2) == 16'h0000);
         a8: `ASSERT(`AVM_BFM.get_response_data(3) == 16'h0001);
         
-        ##20; $finish;
+        ##20; 
+        
+        //$finish; is handled by the simulation script
 
     end : Main
 
