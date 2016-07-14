@@ -31,29 +31,46 @@ module tMDrawPointMI (
     const logic [15:0] cul16MinorVersionRegisterAddress   = 16'h0001; 
     const logic [15:0] cul16RevisionNumberRegisterAddress = 16'h0002;
     const logic [15:0] cul16BuildNumberRegisterAddress    = 16'h0003; 
+    const logic [15:0] cul16ConfigRegisterAddress         = 16'h0004;
+    const logic [15:0] cul16RefreshRateRegisterAddress    = 16'h0005;
+    const logic [15:0] cul16HResRegisterAddress           = 16'h0006; 
+    const logic [15:0] cul16VResRegisterAddress           = 16'h0007;
+    const logic [15:0] cul16ColorDataLenRegisterAddress   = 16'h0008; 
     
     const logic [7:0] cul8MajorVersionRegister   = 8'hFF;
     const logic [7:0] cul8MinorVersionRegister   = 8'h00;
     const logic [7:0] cul8RevisionNumberRegister = 8'h00;
     const logic [7:0] cul8BuildNumberRegister    = 8'h01;
     
+    const logic [15:0] cul16RefreshRateRegister  = 16'd60000; //(Hz)
+    const logic [15:0] cul16HResRegister         = 16'd320;   //(px)
+    const logic [15:0] cul16VResRegister         = 16'd240;   //(px)
+    const logic [15:0] cul16ColorDataLenRegister = 16'd12;    //(bit)
+
+    const logic [15:0] cul16ConfigRegisterDefaultValue = 16'h0000;
+    logic [15:0] ul16ConfigRegister = 16'h0000;     
+    
     typedef enum logic [1:0]
     {
-        BURST_STATE_IDLE = 3'b01,
-        BURST_STATE_RUN  = 3'b10
+        BURST_STATE_IDLE = 2'b01,
+        BURST_STATE_RUN  = 2'b10
         
     } teBurstState;
     
     teBurstState eBurstState = BURST_STATE_IDLE;
     
-    logic [15:0] ul16ReadAddress;
+    logic [15:0] ul16Address;
+    logic        ul1ReadDataValid;
     
     logic        ul1BurstActive;
     logic [9:0]  ul10BurstCount;
     logic [15:0] ul16BurstReadAddress;
     
     logic [15:0] ul16VersionReadData;
-    logic        ul1VersionReadDataValid;
+    logic        ul1VersionReadAddressValid;
+    
+    logic [15:0] ul16ParamReadData;
+    logic        ul1ParamReadAddressValid;
     
     // Burst controller
     always_ff @ (posedge csi_cmd_clock_clk)
@@ -101,10 +118,10 @@ module tMDrawPointMI (
     // Address mux
     always_comb
     begin: p_adress_mux
-        ul16ReadAddress <= avs_cmd_address;
+        ul16Address <= avs_cmd_address;
         if (ul1BurstActive == 1'b1)
         begin
-            ul16ReadAddress <= ul16BurstReadAddress;
+            ul16Address <= ul16BurstReadAddress;
         end
     end: p_adress_mux
     
@@ -114,39 +131,39 @@ module tMDrawPointMI (
         if (rsi_cmd_reset_reset == 1'b1) 
         begin
             ul16VersionReadData <= 16'h0000;
-            ul1VersionReadDataValid <= 1'b0;
+            ul1VersionReadAddressValid <= 1'b0;
         end
         else 
         begin
             if (avs_cmd_byteenable[0] == 1'b1)
             begin
                 ul16VersionReadData <= 16'h0000;
-                ul1VersionReadDataValid <= 1'b0;
+                ul1VersionReadAddressValid <= 1'b0;
                 // Address decoder
-                unique case (ul16ReadAddress)
+                unique case (ul16Address)
                 
                     cul16MajorVersionRegisterAddress:
                     begin
                         ul16VersionReadData <= {8'h00,cul8MajorVersionRegister};
-                        ul1VersionReadDataValid <= 1'b1;
+                        ul1VersionReadAddressValid <= 1'b1;
                     end
                     
                     cul16MinorVersionRegisterAddress:
                     begin
                         ul16VersionReadData <= {8'h00,cul8MinorVersionRegister};
-                        ul1VersionReadDataValid <= 1'b1;
+                        ul1VersionReadAddressValid <= 1'b1;
                     end
                     
                     cul16RevisionNumberRegisterAddress:
                     begin
                         ul16VersionReadData <= {8'h00,cul8RevisionNumberRegister};
-                        ul1VersionReadDataValid <= 1'b1;
+                        ul1VersionReadAddressValid <= 1'b1;
                     end
                     
                     cul16BuildNumberRegisterAddress:
                     begin
                         ul16VersionReadData <= {8'h00,cul8BuildNumberRegister};
-                        ul1VersionReadDataValid <= 1'b1;
+                        ul1VersionReadAddressValid <= 1'b1;
                     end
                     
                     default:
@@ -157,14 +174,111 @@ module tMDrawPointMI (
             end
         end
     end: p_version_regs
+    
+    // Read parameters
+    always_ff @ (posedge csi_cmd_clock_clk)
+    begin: p_param_read
+        if (rsi_cmd_reset_reset == 1'b1) 
+        begin
+            ul16ParamReadData <= 16'h0000;
+            ul1ParamReadAddressValid <= 1'b0;
+        end
+        else 
+        begin
+            ul16ParamReadData <= 16'h0000;
+            ul1ParamReadAddressValid <= 1'b0;
+            // Address decoder
+            unique case (ul16Address)
+            
+                cul16ConfigRegisterAddress:
+                begin
+                    ul16ParamReadData[15:8] <= (avs_cmd_byteenable[1] == 1'b1) ? ul16ConfigRegister[15:8] : 8'h00;
+                    ul16ParamReadData[7:0] <= (avs_cmd_byteenable[0] == 1'b1) ? ul16ConfigRegister[7:0] : 8'h00;
+                    ul1ParamReadAddressValid <= 1'b1;
+                end
+                
+                cul16RefreshRateRegisterAddress:
+                begin
+                    ul16ParamReadData[15:8] <= (avs_cmd_byteenable[1] == 1'b1) ? cul16RefreshRateRegister[15:8] : 8'h00;
+                    ul16ParamReadData[7:0] <= (avs_cmd_byteenable[0] == 1'b1) ? cul16RefreshRateRegister[7:0] : 8'h00;
+                    ul1ParamReadAddressValid <= 1'b1;
+                end
+                
+                cul16HResRegisterAddress:
+                begin
+                    ul16ParamReadData[15:8] <= (avs_cmd_byteenable[1] == 1'b1) ? cul16HResRegister[15:8] : 8'h00;
+                    ul16ParamReadData[7:0] <= (avs_cmd_byteenable[0] == 1'b1) ? cul16HResRegister[7:0] : 8'h00;
+                    ul1ParamReadAddressValid <= 1'b1;
+                end
+                
+                cul16VResRegisterAddress:
+                begin
+                    ul16ParamReadData[15:8] <= (avs_cmd_byteenable[1] == 1'b1) ? cul16VResRegister[15:8] : 8'h00;
+                    ul16ParamReadData[7:0] <= (avs_cmd_byteenable[0] == 1'b1) ? cul16VResRegister[7:0] : 8'h00;
+                    ul1ParamReadAddressValid <= 1'b1;
+                end
+                
+                cul16ColorDataLenRegisterAddress:
+                begin
+                    ul16ParamReadData[15:8] <= (avs_cmd_byteenable[1] == 1'b1) ? cul16ColorDataLenRegister[15:8] : 8'h00;
+                    ul16ParamReadData[7:0] <= (avs_cmd_byteenable[0] == 1'b1) ? cul16ColorDataLenRegister[7:0] : 8'h00;
+                    ul1ParamReadAddressValid <= 1'b1;
+                end
+                
+                default:
+                begin
+                    // Do nothing - just for avoiding the enormous number of warning in altera-modelsim
+                end
+            endcase
+        end
+    end: p_param_read
 
-	// TODO: translate Avalon MM to DrawPoint M
-
-    assign avs_cmd_readdata = ul16VersionReadData;
+    // Write parameters
+    always_ff @ (posedge csi_cmd_clock_clk)
+    begin: p_param_write
+        if (rsi_cmd_reset_reset == 1'b1) 
+        begin
+            ul16ConfigRegister <= cul16ConfigRegisterDefaultValue;
+        end
+        else 
+        begin
+            if (avs_cmd_write == 1'b1)
+            begin
+                // Address decoder
+                unique case (ul16Address)
+                
+                    cul16ConfigRegisterAddress:
+                    begin
+                        ul16ConfigRegister[15:8] <= (avs_cmd_byteenable[1] == 1'b1) ? avs_cmd_writedata[15:8] : ul16ConfigRegister[15:8];
+                        ul16ConfigRegister[7:0] <= (avs_cmd_byteenable[0] == 1'b1) ? avs_cmd_writedata[7:0] : ul16ConfigRegister[7:0];
+                    end
+                    
+                    default:
+                    begin
+                        // Do nothing - just for avoiding the enormous number of warning in altera-modelsim
+                    end
+                endcase
+            end
+        end
+    end: p_param_write
+    
+    always_comb
+    begin: p_readdatavalid
+        ul1ReadDataValid <= 1'b0;
+        if ((avs_cmd_read == 1'b1 && !(avs_cmd_beginbursttransfer == 1'b1 && avs_cmd_burstcount > 10'd1) || (ul1BurstActive == 1'b1))
+        && (ul1VersionReadAddressValid == 1'b1 || ul1ParamReadAddressValid == 1'b1))
+        begin
+            ul1ReadDataValid <= 1'b1;
+        end
+    end: p_readdatavalid
+    
+    // DrawPoint master interface read/write
+    
+    assign avs_cmd_readdata = ul16VersionReadData | ul16ParamReadData;
+    
+    assign avs_cmd_readdatavalid = ul1ReadDataValid;
 
     assign avs_cmd_waitrequest = 1'b0;
-
-    assign avs_cmd_readdatavalid = ul1VersionReadDataValid;
     
     assign coe_dpm_ul1Clock = csi_cmd_clock_clk;
     

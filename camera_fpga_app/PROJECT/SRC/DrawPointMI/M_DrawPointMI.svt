@@ -142,6 +142,24 @@ module tMDrawPointMI_trn
         a7: `ASSERT(`AVM_BFM.get_response_data(2) == 16'h0000);
         a8: `ASSERT(`AVM_BFM.get_response_data(3) == 16'h0001);
         
+        // Read burst parameters
+        `AVM_BFM.set_command_address(16'h0004);
+        `AVM_BFM.set_command_burst_count(10'b0000000101);
+        `AVM_BFM.set_command_burst_size(10'b0000000101);
+        `AVM_BFM.set_command_request(REQ_READ);
+        `AVM_BFM.push_command();
+        
+        ##8 `AVM_BFM.pop_response();
+        a9: `ASSERT(`AVM_BFM.get_response_data(0) == 16'h0000);
+        a10: `ASSERT(`AVM_BFM.get_response_data(1) == 16'd60000);
+        a11: `ASSERT(`AVM_BFM.get_response_data(2) == 16'd320);
+        a12: `ASSERT(`AVM_BFM.get_response_data(3) == 16'd240);
+        a13: `ASSERT(`AVM_BFM.get_response_data(4) == 16'd12);
+        
+        // TODO: Write config parameter
+        
+        // TODO: Read config parameter
+        
         ##20; 
         
         //$finish; is handled by the simulation script
