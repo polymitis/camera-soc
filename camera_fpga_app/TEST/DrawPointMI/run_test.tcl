@@ -36,7 +36,7 @@ array set tb_src_files  {
 set tb_module   tMDrawPointMI_tb
 
 # Simulation duration
-set sim_dur     2us   
+set sim_dur     1500ns   
 
 # Source Altera-Modelsim simulation setup script
 do ../../PROJECT/SRC/DrawPointMI/DrawPointMI_sim/simulation/mentor/msim_setup.tcl

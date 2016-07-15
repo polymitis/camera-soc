@@ -90,7 +90,7 @@ module tMVgaDriver
         output logic [16:0] poul17PixelAddr);
         
         // frame buffer pixel address 
-        poul17PixelAddr = (piul9PosY * cul10BufHRes) + piul9PosY;
+        poul17PixelAddr = (piul9PosY * cul10BufHRes) + piul9PosX;
         
     endfunction : CovertPointToPixelAddressInSubFrameBuffer
     

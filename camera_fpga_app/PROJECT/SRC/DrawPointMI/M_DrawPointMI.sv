@@ -18,6 +18,7 @@ module tMDrawPointMI (
 		output wire        avs_cmd_readdatavalid,      //          .readdatavalid
 		output wire        avs_cmd_waitrequest,        //          .waitrequest
         input  wire [1:0]  avs_cmd_byteenable,         //          .byteenable
+        
         // DrawPoint external interface
         output wire        coe_dpm_ul1Clock,           //       dpm.dpm_ul1Clock   
         output wire        coe_dpm_ul1Reset_n,         //          .dpm_ul1Reset_n   
@@ -50,10 +51,11 @@ module tMDrawPointMI (
     const logic [15:0] cul16ConfigRegisterDefaultValue = 16'h0000;
     logic [15:0] ul16ConfigRegister = 16'h0000;     
     
-    typedef enum logic [1:0]
+    typedef enum logic [2:0]
     {
-        BURST_STATE_IDLE = 2'b01,
-        BURST_STATE_RUN  = 2'b10
+        BURST_STATE_IDLE      = 3'b001,
+        BURST_STATE_READ_RUN  = 3'b010,
+        BURST_STATE_WRITE_RUN = 3'b100
         
     } teBurstState;
     
@@ -64,7 +66,7 @@ module tMDrawPointMI (
     
     logic        ul1BurstActive;
     logic [9:0]  ul10BurstCount;
-    logic [15:0] ul16BurstReadAddress;
+    logic [15:0] ul16BurstAddress;
     
     logic [15:0] ul16VersionReadData;
     logic        ul1VersionReadAddressValid;
@@ -72,13 +74,20 @@ module tMDrawPointMI (
     logic [15:0] ul16ParamReadData;
     logic        ul1ParamReadAddressValid;
     
+    logic [8:0]  ul9PosX;
+    logic [8:0]  ul9PosY;
+    logic [15:0] ul16PosX;
+    logic [15:0] ul16PosY;
+    logic [11:0] ul12Rgb12Data;
+    logic        ul1Update;
+    
     // Burst controller
     always_ff @ (posedge csi_cmd_clock_clk)
     begin: p_burst_controller
         if (rsi_cmd_reset_reset == 1'b1)
         begin
             ul1BurstActive <= 1'b0;
-            ul16BurstReadAddress <= 16'd0;
+            ul16BurstAddress <= 16'd0;
             ul10BurstCount <= 10'd0;
             eBurstState <= BURST_STATE_IDLE;
         end
@@ -88,21 +97,42 @@ module tMDrawPointMI (
             
                 BURST_STATE_IDLE:
                 begin
-                    ul16BurstReadAddress <= 16'd0;
+                    ul16BurstAddress <= 16'd0;
                     if (avs_cmd_beginbursttransfer == 1'b1 && avs_cmd_burstcount > 10'd1)
                     begin
                         ul1BurstActive <= 1'b1;
-                        ul16BurstReadAddress <= avs_cmd_address + 1'd1;
+                        ul16BurstAddress <= avs_cmd_address + 1'd1;
                         ul10BurstCount <= avs_cmd_burstcount - 1'd1;
-                        eBurstState <= BURST_STATE_RUN;
+                        if (avs_cmd_read == 1'b1 && avs_cmd_write == 1'b0)
+                        begin
+                            eBurstState <= BURST_STATE_READ_RUN;
+                        end
+                        if (avs_cmd_read == 1'b0 && avs_cmd_write == 1'b1)
+                        begin
+                            eBurstState <= BURST_STATE_WRITE_RUN;
+                        end
                     end
                 end
                 
-                BURST_STATE_RUN:
+                BURST_STATE_READ_RUN:
                 begin
                     if (ul10BurstCount != 10'd0)
                     begin
-                        ul16BurstReadAddress <= ul16BurstReadAddress + 1'd1;
+                        ul16BurstAddress <= ul16BurstAddress + 1'd1;
+                        ul10BurstCount <= ul10BurstCount - 1'd1;
+                    end
+                    else
+                    begin
+                        ul1BurstActive <= 1'b0;
+                        eBurstState <= BURST_STATE_IDLE;
+                    end
+                end
+                
+                BURST_STATE_WRITE_RUN:
+                begin
+                    if (ul10BurstCount != 10'd0 && avs_cmd_write == 1'b1)
+                    begin
+                        ul16BurstAddress <= ul16BurstAddress + 1'd1;
                         ul10BurstCount <= ul10BurstCount - 1'd1;
                     end
                     else
@@ -121,7 +151,7 @@ module tMDrawPointMI (
         ul16Address <= avs_cmd_address;
         if (ul1BurstActive == 1'b1)
         begin
-            ul16Address <= ul16BurstReadAddress;
+            ul16Address <= ul16BurstAddress;
         end
     end: p_adress_mux
     
@@ -272,7 +302,40 @@ module tMDrawPointMI (
         end
     end: p_readdatavalid
     
-    // DrawPoint master interface read/write
+    // DrawPoint master interface
+    always_ff @ (posedge csi_cmd_clock_clk)
+    begin: p_dpm
+        if (rsi_cmd_reset_reset == 1'b1) 
+        begin
+            ul9PosX <= 9'b000000000;
+            ul9PosY <= 9'b000000000;
+            ul16PosX <= 16'h0000;
+            ul16PosY <= 16'h0000;
+            ul12Rgb12Data <= 12'b000000000000;
+            ul1Update <= 1'b0;
+        end
+        else 
+        begin
+            ul1Update <= 1'b0;
+            if (avs_cmd_write == 1'b1)
+            begin
+                ul1Update <= 1'b0;
+                if (ul16Address > 16'h00FF)
+                begin
+                    ul12Rgb12Data[11:8] <= (avs_cmd_byteenable[1] == 1'b1) ? avs_cmd_writedata[11:8] : ul16ConfigRegister[11:8];
+                    ul12Rgb12Data[7:0] <= (avs_cmd_byteenable[0] == 1'b1) ? avs_cmd_writedata[7:0] : ul16ConfigRegister[7:0];
+                    ul16PosX = (ul16Address - 16'h0100) % cul16HResRegister; //TODO: optimize
+                    ul16PosY = (ul16Address - 16'h0100) / cul16HResRegister; //TODO: optimize
+                    if (ul16PosY <= cul16VResRegister)
+                    begin
+                        ul9PosX <= ul16PosX[8:0];
+                        ul9PosY <= ul16PosY[8:0];
+                        ul1Update <= 1'b1;
+                    end
+                end
+            end
+        end
+    end: p_dpm
     
     assign avs_cmd_readdata = ul16VersionReadData | ul16ParamReadData;
     
@@ -284,13 +347,13 @@ module tMDrawPointMI (
     
     assign coe_dpm_ul1Reset_n = ~rsi_cmd_reset_reset;
     
-    assign coe_dpm_ul1Update = 1'b0;  
+    assign coe_dpm_ul1Update = ul1Update;  
     
-    assign coe_dpm_ul9PosX = 9'b000000000;      
+    assign coe_dpm_ul9PosX = ul9PosX;      
+                             
+    assign coe_dpm_ul9PosY = ul9PosY;      
     
-    assign coe_dpm_ul9PosY = 9'b000000000;      
-    
-    assign coe_dpm_ul12Rgb12Data = 12'b000000000000;
+    assign coe_dpm_ul12Rgb12Data = ul12Rgb12Data;
     
 endmodule : tMDrawPointMI
 
