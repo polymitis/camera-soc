@@ -62,6 +62,14 @@
          type = "int";
       }
    }
+   element drawpoint.cmd
+   {
+      datum _lockedAddress
+      {
+         value = "1";
+         type = "boolean";
+      }
+   }
 }
 ]]></parameter>
  <parameter name="clockCrossingAdapter" value="HANDSHAKE" />
@@ -126,7 +134,7 @@
   <parameter name="USE_BEGIN_BURST_TRANSFER" value="1" />
   <parameter name="USE_BEGIN_TRANSFER" value="0" />
   <parameter name="USE_BURSTCOUNT" value="1" />
-  <parameter name="USE_BYTE_ENABLE" value="0" />
+  <parameter name="USE_BYTE_ENABLE" value="1" />
   <parameter name="USE_CLKEN" value="0" />
   <parameter name="USE_DEBUGACCESS" value="0" />
   <parameter name="USE_LOCK" value="0" />

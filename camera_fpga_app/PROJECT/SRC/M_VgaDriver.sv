@@ -108,9 +108,9 @@ module tMVgaDriver
         
         ul19Address = piul19PixelAddr;
         // horizontal adjustment
-        ul19HAdjAddress = (ul19Address % cul10HRes) / cul4ZoomFactor; 
+        ul19HAdjAddress = (ul19Address % cul10HRes) / cul4ZoomFactor; //TODO: optimize
         // vertical adjustment
-        ul19VAdjAddress = ul19Address / (cul4ZoomFactor * cul10HRes); 
+        ul19VAdjAddress = ul19Address / (cul4ZoomFactor * cul10HRes); //TODO: optimize
         // sub-frame pixel address 
         poul17PixelAddr = (ul19VAdjAddress[8:0] * cul10BufHRes) + ul19HAdjAddress[8:0];
         

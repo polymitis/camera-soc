@@ -5,6 +5,7 @@
 
 `define TEST
 
+`include "../M_VgaDriver.sv"
 `include "../I_DrawPoint.sv"
 `include "DrawPointMI_sim/simulation/DrawPointMI_sim.v"
 
@@ -20,17 +21,25 @@ module tMDrawPointMI_tb;
     timeunit 1ns;
     timeprecision 1ps;
     
-    localparam time SYS_CLOCK_PERIOD = 20ns; // 50 MHz      
+    localparam time SYS_CLOCK_PERIOD = 20ns; // 50 MHz   
+    localparam time PLL_CLOCK_PERIOD = 39.722ns; // 25.175 MHz   
     
     // System clock
     bit sb1SysClock;
     always #(SYS_CLOCK_PERIOD/2) sb1SysClock <= ~sb1SysClock;
     
-    // System reset
-    bit ul1SysReset_n;      
+    // Pll clock 
+    bit sb1PllClock;
+    always #(PLL_CLOCK_PERIOD/2) sb1PllClock <= ~sb1PllClock;     
     
     // DrawPoint master clock
     bit sb1DpmClock;
+    
+    // System reset
+    bit ul1SysReset_n; 
+    
+    // VGA output interface
+    tIVgaOut iIVgaOut(sb1PllClock);
     
     // DrawPoint master interface
     tIDrawPoint iIDrawPoint(sb1DpmClock);
@@ -48,11 +57,18 @@ module tMDrawPointMI_tb;
         .reset_reset_n                     (ul1SysReset_n) 
     );
     
+    // VGA driver
+    tMVgaDriver iMVgaDriver 
+    ( // Ports:
+        .pIVgaOut       (iIVgaOut),
+        .pIDrawPoint    (iIDrawPoint)
+    );
+    
     tMDrawPointMI_trn iMDrawPointMI_trn
     ( // Ports:
         .clk_clk       (sb1SysClock),    
-        .reset_reset_n (ul1SysReset_n),  
-        .pIDrawPoint   (iIDrawPoint)                   
+        .reset_reset_n (ul1SysReset_n),
+        .pIVgaOut      (iIVgaOut)                  
     );
     
 endmodule : tMDrawPointMI_tb
@@ -61,8 +77,8 @@ endmodule : tMDrawPointMI_tb
 module tMDrawPointMI_trn 
 ( // Ports:  
     input  bit         clk_clk,
-    output bit         reset_reset_n,  
-    tIDrawPoint.tb_mst pIDrawPoint  
+    output bit         reset_reset_n,
+    tIVgaOut.tb_driver pIVgaOut    
 );
     timeunit 1ns;
     timeprecision 1ps;
@@ -93,7 +109,7 @@ module tMDrawPointMI_trn
         `AVM_BFM.set_command_request(REQ_READ);
         `AVM_BFM.push_command();
         
-        ##2 `AVM_BFM.pop_response();
+        ##3 `AVM_BFM.pop_response();
         a1: `ASSERT(`AVM_BFM.get_response_data(0) == 16'h00FF);
         
         // Read Minor version
@@ -104,7 +120,7 @@ module tMDrawPointMI_trn
         `AVM_BFM.set_command_request(REQ_READ);
         `AVM_BFM.push_command();
         
-        ##2 `AVM_BFM.pop_response();
+        ##3 `AVM_BFM.pop_response();
         a2: `ASSERT(`AVM_BFM.get_response_data(0) == 16'h0000);
         
         // Read revision number
@@ -115,7 +131,7 @@ module tMDrawPointMI_trn
         `AVM_BFM.set_command_request(REQ_READ);
         `AVM_BFM.push_command();
         
-        ##2 `AVM_BFM.pop_response();
+        ##3 `AVM_BFM.pop_response();
         a3: `ASSERT(`AVM_BFM.get_response_data(0) == 16'h0000);
         
         // Read build number
@@ -126,13 +142,17 @@ module tMDrawPointMI_trn
         `AVM_BFM.set_command_request(REQ_READ);
         `AVM_BFM.push_command();
         
-        ##2 `AVM_BFM.pop_response();
+        ##3 `AVM_BFM.pop_response();
         a4: `ASSERT(`AVM_BFM.get_response_data(0) == 16'h0001);
         
         // Read burst version Major.Minor.Revision.Build
         `AVM_BFM.set_command_address(16'h0000);
         `AVM_BFM.set_command_burst_count(10'b0000000100);
         `AVM_BFM.set_command_burst_size(10'b0000000100);
+        `AVM_BFM.set_command_byte_enable(2'b11,0);
+        `AVM_BFM.set_command_byte_enable(2'b11,1);
+        `AVM_BFM.set_command_byte_enable(2'b11,2);
+        `AVM_BFM.set_command_byte_enable(2'b11,3);
         `AVM_BFM.set_command_request(REQ_READ);
         `AVM_BFM.push_command();
         
@@ -146,6 +166,11 @@ module tMDrawPointMI_trn
         `AVM_BFM.set_command_address(16'h0004);
         `AVM_BFM.set_command_burst_count(10'b0000000101);
         `AVM_BFM.set_command_burst_size(10'b0000000101);
+        `AVM_BFM.set_command_byte_enable(2'b11,0);
+        `AVM_BFM.set_command_byte_enable(2'b11,1);
+        `AVM_BFM.set_command_byte_enable(2'b11,2);
+        `AVM_BFM.set_command_byte_enable(2'b11,3);
+        `AVM_BFM.set_command_byte_enable(2'b11,4);
         `AVM_BFM.set_command_request(REQ_READ);
         `AVM_BFM.push_command();
         
@@ -164,8 +189,8 @@ module tMDrawPointMI_trn
         `AVM_BFM.set_command_data(16'hFFFF,0);
         `AVM_BFM.push_command();
         
-        // Read config parameter
-        ##2 `AVM_BFM.set_command_address(16'h0004);
+        ##2 // Read config parameter
+        `AVM_BFM.set_command_address(16'h0004);
         `AVM_BFM.set_command_burst_count(10'b0000000001);
         `AVM_BFM.set_command_burst_size(10'b0000000001);
         `AVM_BFM.set_command_byte_enable(2'b11,0);
@@ -180,19 +205,27 @@ module tMDrawPointMI_trn
         `AVM_BFM.set_command_burst_count(10'b0000000100);
         `AVM_BFM.set_command_burst_size(10'b0000000100);
         `AVM_BFM.set_command_request(REQ_WRITE);
+        `AVM_BFM.set_command_byte_enable(2'b11,0);
+        `AVM_BFM.set_command_byte_enable(2'b11,1);
+        `AVM_BFM.set_command_byte_enable(2'b11,2);
+        `AVM_BFM.set_command_byte_enable(2'b11,3);
         `AVM_BFM.set_command_data(16'h0F0F,0);
         `AVM_BFM.set_command_data(16'h0FF0,1);
         `AVM_BFM.set_command_data(16'h00FF,2);
         `AVM_BFM.set_command_data(16'h0F0F,3);
         `AVM_BFM.push_command();
         
-        ##12;
+        ##12; 
         
         // Write pixels on (0,319) (0,320) (1,1) (1,2) pixels
         `AVM_BFM.set_command_address(16'h023F);
         `AVM_BFM.set_command_burst_count(10'b0000000100);
         `AVM_BFM.set_command_burst_size(10'b0000000100);
         `AVM_BFM.set_command_request(REQ_WRITE);
+        `AVM_BFM.set_command_byte_enable(2'b11,0);
+        `AVM_BFM.set_command_byte_enable(2'b11,1);
+        `AVM_BFM.set_command_byte_enable(2'b11,2);
+        `AVM_BFM.set_command_byte_enable(2'b11,3);
         `AVM_BFM.set_command_data(16'h0F0F,0);
         `AVM_BFM.set_command_data(16'h0FF0,1);
         `AVM_BFM.set_command_data(16'h00FF,2);
