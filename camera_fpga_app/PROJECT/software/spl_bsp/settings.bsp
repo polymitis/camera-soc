@@ -2,11 +2,11 @@
 <sch:Settings xmlns:sch="http://www.altera.com/embeddedsw/bsp/schema">
         <BspType>spl</BspType>
         <BspVersion>default</BspVersion>
-        <BspGeneratedTimeStamp>Jun 1, 2016 7:48:46 PM</BspGeneratedTimeStamp>
-        <BspGeneratedUnixTimeStamp>1464806926008</BspGeneratedUnixTimeStamp>
-        <BspGeneratedLocation>.\</BspGeneratedLocation>
-        <BspSettingsFile>C:\Users\pfountas\Documents\Projects\pfountas-research\camera_fpga_app\PROJECT\software\spl_bsp\settings.bsp</BspSettingsFile>
-        <HpsSettingsPath>..\..\hps_isw_handoff\CameraHPS_hps</HpsSettingsPath>
+        <BspGeneratedTimeStamp>Jun 1, 2016 9:52:06 PM</BspGeneratedTimeStamp>
+        <BspGeneratedUnixTimeStamp>1464814326624</BspGeneratedUnixTimeStamp>
+        <BspGeneratedLocation>./</BspGeneratedLocation>
+        <BspSettingsFile>/home/pfountas/Projects/camera_fpga_app/PROJECT/software/spl_bsp/settings.bsp</BspSettingsFile>
+        <HpsSettingsPath>../../hps_isw_handoff/CameraHPS_hps</HpsSettingsPath>
         <JdiFile>default</JdiFile>
         <Cpu xsi:nil="true" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"/>
         <SchemaVersion>1.9</SchemaVersion>
