@@ -106,7 +106,13 @@ if {$mode == "user"} {
 
     # wait for user input
     echo "Press ENTER to continue"
-    gets stdin ans
+    proc getStdinLine {} {
+        set ::user_input [gets stdin]
+    }
+    fileevent stdin readable getStdinLine
+    vwait ::user_input
+    # Unregister the callback
+    fileevent stdin readable {}
 }
 
 # start simulation

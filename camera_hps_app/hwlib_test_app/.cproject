@@ -27,6 +27,7 @@
 									<listOptionValue builtIn="false" value="${SOCEDS_ROOT}/ip/altera/hps/altera_hps/hwlib/include/${HWLIBS_SOC_FAMILY}"/>
 									<listOptionValue builtIn="false" value="${SOCEDS_ROOT}/host_tools/mentor/gnu/arm/baremetal/arm-altera-eabi/include"/>
 									<listOptionValue builtIn="false" value="${SOCEDS_ROOT}/host_tools/mentor/gnu/arm/baremetal/lib/gcc/arm-altera-eabi/5.2.0/include"/>
+									<listOptionValue builtIn="false" value="/home/pfountas/Projects/camera_fpga_app/PROJECT/software/include"/>
 								</option>
 								<inputType id="cdt.managedbuild.tool.gnu.c.compiler.input.480854066" superClass="cdt.managedbuild.tool.gnu.c.compiler.input"/>
 							</tool>
@@ -50,8 +51,10 @@
 	<storageModule moduleId="cdtBuildSystem" version="4.0.0">
 		<project id="hwlib_test_app.null.1327840653" name="hwlib_test_app"/>
 	</storageModule>
-	<storageModule moduleId="refreshScope" versionNumber="1">
-		<resource resourceType="PROJECT" workspacePath="/hwlib_test_app"/>
+	<storageModule moduleId="refreshScope" versionNumber="2">
+		<configuration configurationName="Default">
+			<resource resourceType="PROJECT" workspacePath="/hwlib_test_app"/>
+		</configuration>
 	</storageModule>
 	<storageModule moduleId="scannerConfiguration">
 		<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId=""/>

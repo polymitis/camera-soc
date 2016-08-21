@@ -42,7 +42,7 @@
 #include "alt_dma.h"
 #include "alt_fpga_manager.h"
 #include "socal/socal.h"
-
+#include "hps_arm_a9_0.h"
 #include "alt_hps_detect.h"
 #include "alt_printf.h"
 
@@ -308,12 +308,8 @@ void socfpga_bridge_cleanup(ALT_BRIDGE_t bridge)
 
 ALT_STATUS_CODE socfpga_bridge_io(void)
 {
-    const uint32_t ALT_LWFPGA_BASE         = 0xFF200000;
-    const uint32_t ALT_LWFPGA_SYSID_OFFSET = 0x00010000;
-    const uint32_t ALT_LWFPGA_LED_OFFSET   = 0x00010040;
-
     /* Attempt to read the system ID peripheral */
-    uint32_t sysid = alt_read_word(ALT_LWFPGA_BASE + ALT_LWFPGA_SYSID_OFFSET);
+    uint32_t sysid = alt_read_word(SYSID_BASE);
     /* Attempt to toggle the 4 LEDs */
     const uint32_t bits = 4;
     uint32_t i, j;
@@ -329,7 +325,7 @@ ALT_STATUS_CODE socfpga_bridge_io(void)
          * http://en.wikipedia.org/wiki/Gray_code */
         uint32_t gray = (i >> 1) ^ i;
 
-        alt_write_word(ALT_LWFPGA_BASE + ALT_LWFPGA_LED_OFFSET, gray);
+        alt_write_word(PIO_BASE, gray);
 
         ALT_PRINTF("INFO: Gray code(i=0x%x) => 0x%x [", (unsigned int)i, (unsigned int)gray);
 
@@ -342,11 +338,68 @@ ALT_STATUS_CODE socfpga_bridge_io(void)
     }
 
     /* Reset the LEDs to all on */
-    alt_write_word(ALT_LWFPGA_BASE + ALT_LWFPGA_LED_OFFSET, 0);
+    alt_write_word(PIO_BASE, 0);
 
     ALT_PRINTF("INFO: LEDs should have blinked.\n\n");
 
     return ALT_E_SUCCESS;
+}
+
+ALT_STATUS_CODE socfpga_drawpoint_test(void)
+{
+    ALT_PRINTF("INFO: DrawPoint peripheral test.\n");
+
+    // Read version
+    uint16_t u16DpmMajorVersion = alt_read_hword(DRAWPOINT_BASE + 0x00000000);
+    uint16_t u16DpmMinorVersion = alt_read_hword(DRAWPOINT_BASE + 0x00000002);
+    uint16_t u16DpmRevisionNumber = alt_read_hword(DRAWPOINT_BASE + 0x00000004);
+    uint16_t u16DpmBuildNumber = alt_read_hword(DRAWPOINT_BASE + 0x00000006);
+
+    ALT_PRINTF("INFO:DrawPoint: Major version:          %d\n", u16DpmMajorVersion);
+    ALT_PRINTF("INFO:DrawPoint: Minor version:          %d\n", u16DpmMinorVersion);
+    ALT_PRINTF("INFO:DrawPoint: Revision number:        %d\n", u16DpmRevisionNumber);
+    ALT_PRINTF("INFO:DrawPoint: Build number:           %d\n", u16DpmBuildNumber);
+
+    // Read driver properties
+    uint16_t u16DpmRefreshRate = alt_read_hword(DRAWPOINT_BASE + 0x0000000A);
+	uint16_t u16DpmHRes = alt_read_hword(DRAWPOINT_BASE + 0x0000000C);
+	uint16_t u16DpmVRes = alt_read_hword(DRAWPOINT_BASE + 0x0000000E);
+	uint16_t u16DpmColorDataLen = alt_read_hword(DRAWPOINT_BASE + 0x00000010);
+
+    ALT_PRINTF("INFO:DrawPoint: Refresh rate:           %d\n", u16DpmRefreshRate);
+    ALT_PRINTF("INFO:DrawPoint: Horizontal resolution:  %d\n", u16DpmHRes);
+    ALT_PRINTF("INFO:DrawPoint: Vertical resolution:    %d\n", u16DpmVRes);
+    ALT_PRINTF("INFO:DrawPoint: Color data length:      %d\n", u16DpmColorDataLen);
+
+    // Draw a blue background on the higher display half
+    for (uint32_t u32J = 0U; u32J < (u16DpmVRes/2U); u32J++) // for every row
+    {
+    	for (uint32_t u32I = 0U; u32I < u16DpmHRes; u32I++) // for every pixel
+    	{
+    		uint32_t u32PixelsOffset = (uint32_t)(u32J*2U*u16DpmHRes) + (2U*u32I);
+    		alt_write_hword(DRAWPOINT_BASE + 0x0000D400 + u32PixelsOffset, 0x000F);
+    	    //ALT_PRINTF("INFO:DrawPoint: Set pixel [%ld,%ld] to blue.\n", u32I, u32J);
+    	}
+    	//ALT_PRINTF("INFO:DrawPoint: Set pixel line [%ld] to blue.\n", u32J);
+    }
+    // Switch to lower display half
+	alt_write_hword(DRAWPOINT_BASE + 0x00000008, 0x00000001);
+    // Draw a blue background on the lower display half
+	for (uint32_t u32J = 0U; u32J < (u16DpmVRes/2U); u32J++) // for every row
+	{
+		for (uint32_t u32I = 0U; u32I < u16DpmHRes; u32I++) // for every pixel
+		{
+			uint32_t u32PixelsOffset = (uint32_t)(u32J*2U*u16DpmHRes) + (2U*u32I);
+			alt_write_hword(DRAWPOINT_BASE + 0x0000D400 + u32PixelsOffset, 0x000F);
+			//ALT_PRINTF("INFO:DrawPoint: Set pixel [%ld,%ld] to blue.\n", u32I, u32J);
+		}
+		//ALT_PRINTF("INFO:DrawPoint: Set pixel line [%ld] to blue.\n", u32J);
+	}
+    ALT_PRINTF("INFO:DrawPoint: Background color set to blue.\n");
+
+    ALT_PRINTF("INFO: DrawPoint master peripheral test complete.\n\n");
+
+	return ALT_E_SUCCESS;
 }
 
 int main(int argc, char** argv)
@@ -367,22 +420,22 @@ int main(int argc, char** argv)
         status = socfpga_dma_setup(&channel);
     }
 
-    if (status == ALT_E_SUCCESS)
-    {
-        /* This is the symbol name for the SOF file contents linked in. */
-        extern char _binary_soc_system_dc_rbf_start;
-        extern char _binary_soc_system_dc_rbf_end;
-
-        /* Use the above symbols to extract the FPGA image information. */
-        const char *   fpga_image      = &_binary_soc_system_dc_rbf_start;
-        const uint32_t fpga_image_size = &_binary_soc_system_dc_rbf_end - &_binary_soc_system_dc_rbf_start;
-
-        /* Trace the FPGA image information. */
-        ALT_PRINTF("INFO: FPGA Image binary at %p.\n", fpga_image);
-        ALT_PRINTF("INFO: FPGA Image size is %" PRIu32 " bytes.\n", fpga_image_size);
-
-        status = socfpga_fpga_setup_dma(fpga_image, fpga_image_size, channel);
-    }
+//    if (status == ALT_E_SUCCESS)
+//    {
+//        /* This is the symbol name for the SOF file contents linked in. */
+//        extern char _binary_soc_system_dc_rbf_start;
+//        extern char _binary_soc_system_dc_rbf_end;
+//
+//        /* Use the above symbols to extract the FPGA image information. */
+//        const char *   fpga_image      = &_binary_soc_system_dc_rbf_start;
+//        const uint32_t fpga_image_size = &_binary_soc_system_dc_rbf_end - &_binary_soc_system_dc_rbf_start;
+//
+//        /* Trace the FPGA image information. */
+//        ALT_PRINTF("INFO: FPGA Image binary at %p.\n", fpga_image);
+//        ALT_PRINTF("INFO: FPGA Image size is %" PRIu32 " bytes.\n", fpga_image_size);
+//
+//        status = socfpga_fpga_setup_dma(fpga_image, fpga_image_size, channel);
+//    }
 
     if (status == ALT_E_SUCCESS)
     {
@@ -394,7 +447,10 @@ int main(int argc, char** argv)
         status = socfpga_bridge_io();
     }
 
-    // TODO:PF: Draw on the screen
+    if (status == ALT_E_SUCCESS)
+	{
+		status = socfpga_drawpoint_test();
+	}
 
     socfpga_bridge_cleanup(ALT_BRIDGE_LWH2F);
     socfpga_fpga_cleanup();

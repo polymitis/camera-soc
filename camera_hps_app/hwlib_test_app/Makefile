@@ -15,7 +15,7 @@ C_SRC       := $(APP_SRC) $(HWLIBS_SRC)
 #C_SRC       := $(addprefix $(SRC_DIR)/,$(APP_SRC) $(HWLIBS_SRC))
 
 MULTILIBFLAGS := -mcpu=cortex-a9 -mfloat-abi=softfp -mfpu=neon
-CFLAGS  := -g -O0 -Wall -Werror $(MULTILIBFLAGS) -I$(HWLIBS_ROOT)/include -DALT_FPGA_ENABLE_DMA_SUPPORT=1 -I$(HWLIBS_ROOT)/include/$(ALT_DEVICE_FAMILY) -D$(ALT_DEVICE_FAMILY)
+CFLAGS  := -g -O0 -Wall -Werror $(MULTILIBFLAGS) -I$(HWLIBS_ROOT)/include -I$(FPGAPJ_ROOT)/software/include -DALT_FPGA_ENABLE_DMA_SUPPORT=1 -I$(HWLIBS_ROOT)/include/$(ALT_DEVICE_FAMILY) -D$(ALT_DEVICE_FAMILY)
 
 CROSS_COMPILE := arm-altera-eabi-
 CC := $(CROSS_COMPILE)gcc

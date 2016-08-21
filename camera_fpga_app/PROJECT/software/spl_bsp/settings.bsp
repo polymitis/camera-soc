@@ -2,8 +2,8 @@
 <sch:Settings xmlns:sch="http://www.altera.com/embeddedsw/bsp/schema">
         <BspType>spl</BspType>
         <BspVersion>default</BspVersion>
-        <BspGeneratedTimeStamp>Jun 1, 2016 9:52:06 PM</BspGeneratedTimeStamp>
-        <BspGeneratedUnixTimeStamp>1464814326624</BspGeneratedUnixTimeStamp>
+        <BspGeneratedTimeStamp>Jun 4, 2016 8:22:27 PM</BspGeneratedTimeStamp>
+        <BspGeneratedUnixTimeStamp>1465068147120</BspGeneratedUnixTimeStamp>
         <BspGeneratedLocation>./</BspGeneratedLocation>
         <BspSettingsFile>/home/pfountas/Projects/camera_fpga_app/PROJECT/software/spl_bsp/settings.bsp</BspSettingsFile>
         <HpsSettingsPath>../../hps_isw_handoff/CameraHPS_hps</HpsSettingsPath>

@@ -102,15 +102,13 @@ module tMVgaDriver
         input  logic [18:0] piul19PixelAddr,
         output logic [16:0] poul17PixelAddr);
         
-        logic [18:0] ul19Address     = 19'b0;
         logic [18:0] ul19HAdjAddress = 19'b0;
         logic [18:0] ul19VAdjAddress = 19'b0;
         
-        ul19Address = piul19PixelAddr;
         // horizontal adjustment
-        ul19HAdjAddress = (ul19Address % cul10HRes) / cul4ZoomFactor; //TODO: optimize
+        ul19HAdjAddress = (piul19PixelAddr % cul10HRes) / cul4ZoomFactor; //TODO:PF: optimize operations.
         // vertical adjustment
-        ul19VAdjAddress = ul19Address / (cul4ZoomFactor * cul10HRes); //TODO: optimize
+        ul19VAdjAddress = piul19PixelAddr / (cul4ZoomFactor * cul10HRes); //TODO:PF: optimize operations.
         // sub-frame pixel address 
         poul17PixelAddr = (ul19VAdjAddress[8:0] * cul10BufHRes) + ul19HAdjAddress[8:0];
         

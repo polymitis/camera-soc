@@ -16,8 +16,8 @@ add wave -noupdate -radix binary /tMDrawPointMI_tb/iDrawPointMI_sim/drawpoint/av
 add wave -noupdate -radix hexadecimal /tMDrawPointMI_tb/iDrawPointMI_sim/drawpoint/coe_dpm_ul1Clock
 add wave -noupdate -radix hexadecimal /tMDrawPointMI_tb/iDrawPointMI_sim/drawpoint/coe_dpm_ul1Reset_n
 add wave -noupdate -radix hexadecimal /tMDrawPointMI_tb/iDrawPointMI_sim/drawpoint/coe_dpm_ul1Update
-add wave -noupdate -radix hexadecimal /tMDrawPointMI_tb/iDrawPointMI_sim/drawpoint/coe_dpm_ul9PosX
-add wave -noupdate -radix hexadecimal /tMDrawPointMI_tb/iDrawPointMI_sim/drawpoint/coe_dpm_ul9PosY
+add wave -noupdate -radix unsigned /tMDrawPointMI_tb/iDrawPointMI_sim/drawpoint/coe_dpm_ul9PosX
+add wave -noupdate -radix unsigned /tMDrawPointMI_tb/iDrawPointMI_sim/drawpoint/coe_dpm_ul9PosY
 add wave -noupdate -radix hexadecimal /tMDrawPointMI_tb/iDrawPointMI_sim/drawpoint/coe_dpm_ul12Rgb12Data
 add wave -noupdate -radix hexadecimal /tMDrawPointMI_tb/iDrawPointMI_sim/drawpoint/ul16ConfigRegister
 add wave -noupdate /tMDrawPointMI_tb/iDrawPointMI_sim/drawpoint/eReadState
@@ -35,10 +35,9 @@ add wave -noupdate -radix hexadecimal /tMDrawPointMI_tb/iDrawPointMI_sim/drawpoi
 add wave -noupdate -radix hexadecimal /tMDrawPointMI_tb/iDrawPointMI_sim/drawpoint/ul16ParamReadData
 add wave -noupdate -radix hexadecimal /tMDrawPointMI_tb/iDrawPointMI_sim/drawpoint/ul1ParamReadAddressValid
 add wave -noupdate /tMDrawPointMI_tb/iDrawPointMI_sim/drawpoint/ul1ReadAddressValid
+add wave -noupdate -radix unsigned /tMDrawPointMI_tb/iDrawPointMI_sim/drawpoint/ul17PixelAddr
 add wave -noupdate -radix hexadecimal /tMDrawPointMI_tb/iDrawPointMI_sim/drawpoint/ul9PosX
 add wave -noupdate -radix hexadecimal /tMDrawPointMI_tb/iDrawPointMI_sim/drawpoint/ul9PosY
-add wave -noupdate -radix hexadecimal /tMDrawPointMI_tb/iDrawPointMI_sim/drawpoint/ul16PosX
-add wave -noupdate -radix hexadecimal /tMDrawPointMI_tb/iDrawPointMI_sim/drawpoint/ul16PosY
 add wave -noupdate -radix hexadecimal /tMDrawPointMI_tb/iDrawPointMI_sim/drawpoint/ul12Rgb12Data
 add wave -noupdate -radix hexadecimal /tMDrawPointMI_tb/iDrawPointMI_sim/drawpoint/ul1Update
 add wave -noupdate -divider {VgaOut Port}
@@ -74,7 +73,7 @@ add wave -noupdate -radix hexadecimal /tMDrawPointMI_tb/iMVgaDriver/iMFrameBuffe
 add wave -noupdate -radix hexadecimal /tMDrawPointMI_tb/iMVgaDriver/iMFrameBuffer_320x240/poul12RData
 add wave -noupdate -radix hexadecimal /tMDrawPointMI_tb/iMVgaDriver/iMFrameBuffer_320x240/aul12RgbBuffer
 TreeUpdate [SetDefaultTree]
-WaveRestoreCursors {{Cursor 1} {270000 ps} 0}
+WaveRestoreCursors {{Cursor 1} {1150000 ps} 0}
 quietly wave cursor active 1
 configure wave -namecolwidth 187
 configure wave -valuecolwidth 100
@@ -90,4 +89,4 @@ configure wave -griddelta 40
 configure wave -timeline 0
 configure wave -timelineunits us
 update
-WaveRestoreZoom {133125 ps} {526875 ps}
+WaveRestoreZoom {0 ps} {1575 ns}

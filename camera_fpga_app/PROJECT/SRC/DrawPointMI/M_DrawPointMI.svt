@@ -3,11 +3,11 @@
 `ifndef M_DRAWPOINTMI_SVT
 `define M_DRAWPOINTMI_SVT
 
-`define TEST
-
-`include "../M_VgaDriver.sv"
 `include "../I_DrawPoint.sv"
 `include "DrawPointMI_sim/simulation/DrawPointMI_sim.v"
+
+`define TEST
+`include "../M_VgaDriver.sv"
 
 // assert macro
 `define ASSERT(__cond) assert (__cond) else $fatal(2,`"(__cond)`")
@@ -23,6 +23,12 @@ module tMDrawPointMI_tb;
     
     localparam time SYS_CLOCK_PERIOD = 20ns; // 50 MHz   
     localparam time PLL_CLOCK_PERIOD = 39.722ns; // 25.175 MHz   
+
+    logic        ul1DpmReset_n;
+    logic        ul1DpmUpdate;
+    logic [8:0]  ul9DpmPosX;
+    logic [8:0]  ul9DpmPosY;
+    logic [11:0] ul12DpmRgb12Data;
     
     // System clock
     bit sb1SysClock;
@@ -48,14 +54,20 @@ module tMDrawPointMI_tb;
     DrawPointMI_sim iDrawPointMI_sim 
     ( // Ports:
         .clk_clk                           (sb1SysClock),                        
-        .drawpoint_dpm_dpm_ul1reset_n      (iIDrawPoint.ul1Reset_n),   
-        .drawpoint_dpm_dpm_ul1update       (iIDrawPoint.ul1Update),    
-        .drawpoint_dpm_dpm_ul9posx         (iIDrawPoint.ul9PosX),      
-        .drawpoint_dpm_dpm_ul9posy         (iIDrawPoint.ul9PosY),      
-        .drawpoint_dpm_dpm_ul12rgb12data   (iIDrawPoint.ul12Rgb12Data),
+        .drawpoint_dpm_dpm_ul1reset_n      (ul1DpmReset_n),   
+        .drawpoint_dpm_dpm_ul1update       (ul1DpmUpdate),    
+        .drawpoint_dpm_dpm_ul9posx         (ul9DpmPosX),      
+        .drawpoint_dpm_dpm_ul9posy         (ul9DpmPosY),      
+        .drawpoint_dpm_dpm_ul12rgb12data   (ul12DpmRgb12Data),
         .drawpoint_dpm_dpm_ul1clock        (sb1DpmClock),     
         .reset_reset_n                     (ul1SysReset_n) 
     );
+    
+    assign iIDrawPoint.ul1Reset_n = ul1DpmReset_n;
+    assign iIDrawPoint.ul1Update = ul1DpmUpdate;
+    assign iIDrawPoint.ul9PosX = ul9DpmPosX;
+    assign iIDrawPoint.ul9PosY = ul9DpmPosY;
+    assign iIDrawPoint.ul12Rgb12Data = ul12DpmRgb12Data;
     
     // VGA driver
     tMVgaDriver iMVgaDriver 
@@ -82,8 +94,6 @@ module tMDrawPointMI_trn
 );
     timeunit 1ns;
     timeprecision 1ps;
-    
-    //bit A, B;
     
     default clocking tb_cb @ (posedge clk_clk);
         output #1 reset_reset_n; 
@@ -181,27 +191,8 @@ module tMDrawPointMI_trn
         a12: `ASSERT(`AVM_BFM.get_response_data(3) == 16'd240);
         a13: `ASSERT(`AVM_BFM.get_response_data(4) == 16'd12);
         
-        // Write config parameter
-        `AVM_BFM.set_command_address(16'h0004);
-        `AVM_BFM.set_command_burst_count(10'b0000000001);
-        `AVM_BFM.set_command_burst_size(10'b0000000001);
-        `AVM_BFM.set_command_request(REQ_WRITE);
-        `AVM_BFM.set_command_data(16'hFFFF,0);
-        `AVM_BFM.push_command();
-        
-        ##2 // Read config parameter
-        `AVM_BFM.set_command_address(16'h0004);
-        `AVM_BFM.set_command_burst_count(10'b0000000001);
-        `AVM_BFM.set_command_burst_size(10'b0000000001);
-        `AVM_BFM.set_command_byte_enable(2'b11,0);
-        `AVM_BFM.set_command_request(REQ_READ);
-        `AVM_BFM.push_command();
-        
-        ##2 `AVM_BFM.pop_response();
-        a14: `ASSERT(`AVM_BFM.get_response_data(0) == 16'hFFFF);
-        
-        // Write pixels on (0,1) (0,2) (0,3) (0,4) pixels
-        `AVM_BFM.set_command_address(16'h0100);
+        // Write pixels on (0,0) (1,0) (2,0) (3,0) pixels
+        `AVM_BFM.set_command_address(16'h06A00);
         `AVM_BFM.set_command_burst_count(10'b0000000100);
         `AVM_BFM.set_command_burst_size(10'b0000000100);
         `AVM_BFM.set_command_request(REQ_WRITE);
@@ -217,8 +208,27 @@ module tMDrawPointMI_trn
         
         ##12; 
         
-        // Write pixels on (0,319) (0,320) (1,1) (1,2) pixels
-        `AVM_BFM.set_command_address(16'h023F);
+        // Write config parameter
+        `AVM_BFM.set_command_address(16'h0004);
+        `AVM_BFM.set_command_burst_count(10'b0000000001);
+        `AVM_BFM.set_command_burst_size(10'b0000000001);
+        `AVM_BFM.set_command_request(REQ_WRITE);
+        `AVM_BFM.set_command_data(16'h0001,0);
+        `AVM_BFM.push_command();
+        
+        ##3 // Read config parameter
+        `AVM_BFM.set_command_address(16'h0004);
+        `AVM_BFM.set_command_burst_count(10'b0000000001);
+        `AVM_BFM.set_command_burst_size(10'b0000000001);
+        `AVM_BFM.set_command_byte_enable(2'b11,0);
+        `AVM_BFM.set_command_request(REQ_READ);
+        `AVM_BFM.push_command();
+        
+        ##3 `AVM_BFM.pop_response();
+        //a14: `ASSERT(`AVM_BFM.get_response_data(0) == 16'h0001);
+        
+        // Write pixels on (0,120) (1,120) (2,120) (3,120) pixels
+        `AVM_BFM.set_command_address(16'h06A00);
         `AVM_BFM.set_command_burst_count(10'b0000000100);
         `AVM_BFM.set_command_burst_size(10'b0000000100);
         `AVM_BFM.set_command_request(REQ_WRITE);
@@ -233,7 +243,7 @@ module tMDrawPointMI_trn
         `AVM_BFM.push_command();
         
         ##20; //$finish; is handled by the simulation script
-
+        
     end : Main
 
 endmodule : tMDrawPointMI_trn

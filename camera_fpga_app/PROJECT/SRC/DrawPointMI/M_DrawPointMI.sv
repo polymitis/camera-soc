@@ -28,16 +28,19 @@ module tMDrawPointMI (
         output wire [11:0] coe_dpm_ul12Rgb12Data       //          .dpm_ul12Rgb12Data
 	);
     
-    const logic [15:0] cul16MajorVersionRegisterAddress   = 16'h0000; 
-    const logic [15:0] cul16MinorVersionRegisterAddress   = 16'h0001; 
-    const logic [15:0] cul16RevisionNumberRegisterAddress = 16'h0002;
-    const logic [15:0] cul16BuildNumberRegisterAddress    = 16'h0003; 
-    const logic [15:0] cul16ConfigRegisterAddress         = 16'h0004;
-    const logic [15:0] cul16RefreshRateRegisterAddress    = 16'h0005;
-    const logic [15:0] cul16HResRegisterAddress           = 16'h0006; 
-    const logic [15:0] cul16VResRegisterAddress           = 16'h0007;
-    const logic [15:0] cul16ColorDataLenRegisterAddress   = 16'h0008; 
-    
+    const logic [15:0] cul16MajorVersionRegisterAddress    = 16'h0000; 
+    const logic [15:0] cul16MinorVersionRegisterAddress    = 16'h0001; 
+    const logic [15:0] cul16RevisionNumberRegisterAddress  = 16'h0002;
+    const logic [15:0] cul16BuildNumberRegisterAddress     = 16'h0003; 
+    const logic [15:0] cul16ConfigRegisterAddress          = 16'h0004; // 0:bit selects between top/bottom half of display buffer.
+    const logic [15:0] cul16RefreshRateRegisterAddress     = 16'h0005;
+    const logic [15:0] cul16HResRegisterAddress            = 16'h0006; 
+    const logic [15:0] cul16VResRegisterAddress            = 16'h0007;
+    const logic [15:0] cul16ColorDataLenRegisterAddress    = 16'h0008;
+    const logic [15:0] cul16Reserved0RegisterAddress       = 16'h0009;
+    const logic [15:0] cul16DrawPointInterfaceBaseAddress  = 16'h6A00; // (76800/2 == 38400) addresses of the top/bottom half of the display buffer.
+    const logic [16:0] cul17HalfDisplayBufferAddressOffset = 17'h9600; 
+
     const logic [7:0] cul8MajorVersionRegister   = 8'hFF;
     const logic [7:0] cul8MinorVersionRegister   = 8'h00;
     const logic [7:0] cul8RevisionNumberRegister = 8'h00;
@@ -91,20 +94,39 @@ module tMDrawPointMI (
     
     logic        ul1ReadAddressValid;
     
+    logic [16:0] ul17PixelAddr;
     logic [8:0]  ul9PosX;
     logic [8:0]  ul9PosY;
-    logic [15:0] ul16PosX;
-    logic [15:0] ul16PosY;
+    logic [11:0] ul12Rgb12DataReg;
     logic [11:0] ul12Rgb12Data;
+    logic        ul1UpdateReg;
     logic        ul1Update;
     
-    logic [8:0]  ul9PosX_o;
-    logic [8:0]  ul9PosY_o;
-    logic [11:0] ul12Rgb12Data_o;
-    logic        ul1Update_o;
+    logic [15:0] ul16ConfigRegister;
     
-    logic [15:0] ul16ConfigRegister; 
+    // Convert pixel address to [X,Y] point.
+    // 
+    // @param [in]  poul17PixelAddr is the sub-frame buffer pixel address in 320x240 resolution.
+    // @param [out] piul9PosX is the pixel horizontal position.
+    // @param [out] piul9PosY is the pixel vertical position.
+    function automatic void CovertPixelAddressToPoint(
+        input   logic [16:0] piul17PixelAddr,
+        output  logic [8:0]  poul9PosX,
+        output  logic [8:0]  poul9PosY);
+
+        logic [16:0] ul17PosX = 17'b0;
+        logic [16:0] ul17PosY = 17'b0;
+        
+        // calculate X position
+        ul17PosX = piul17PixelAddr % cul16HResRegister; //TODO:PF: optimize operation.
+        // calculate Y position
+        ul17PosY = piul17PixelAddr / cul16HResRegister; //TODO:PF: optimize operation.
+        // export position
+        poul9PosX = ul17PosX[8:0];
+        poul9PosY = ul17PosY[8:0];
     
+    endfunction : CovertPixelAddressToPoint    
+
     // Read controller
     always_ff @ (posedge ul1SysClock)
     begin: p_read_controller
@@ -330,6 +352,11 @@ module tMDrawPointMI (
                     ul16ParamReadData[7:0] <= (ul2ByteEnable[0] == 1'b1) ? cul16ColorDataLenRegister[7:0] : 8'h00;
                     ul1ParamReadAddressValid <= 1'b1;
                 end
+
+                cul16Reserved0RegisterAddress:
+                begin
+                    ul1ParamReadAddressValid <= 1'b1;
+                end
                 
                 default:
                 begin
@@ -373,58 +400,37 @@ module tMDrawPointMI (
     begin: p_dpm
         if (ul1SysReset == 1'b1) 
         begin
+            ul17PixelAddr <= 17'b00000000000000000;
             ul9PosX <= 9'b000000000;
             ul9PosY <= 9'b000000000;
-            ul16PosX <= 16'h0000;
-            ul16PosY <= 16'h0000;
+            ul12Rgb12DataReg <= 12'b000000000000;
             ul12Rgb12Data <= 12'b000000000000;
+            ul1UpdateReg <= 1'b0;
             ul1Update <= 1'b0;
         end
         else 
         begin
-            ul1Update <= 1'b0;
+            ul1UpdateReg <= 1'b0;
             if (avs_cmd_write == 1'b1)
             begin
-                ul1Update <= 1'b0;
-                if (ul16Address > 16'h00FF)
+                ul1UpdateReg <= 1'b0;
+                if (ul16Address >= cul16DrawPointInterfaceBaseAddress)
                 begin
-                    ul12Rgb12Data[11:8] <= (ul2ByteEnable[1] == 1'b1) ? avs_cmd_writedata[11:8] : ul16ConfigRegister[11:8];
-                    ul12Rgb12Data[7:0] <= (ul2ByteEnable[0] == 1'b1) ? avs_cmd_writedata[7:0] : ul16ConfigRegister[7:0];
-                    ul16PosX = (ul16Address - 16'h0100) % cul16HResRegister; //TODO: optimize
-                    ul16PosY = (ul16Address - 16'h0100) / cul16HResRegister; //TODO: optimize
-                    if (ul16PosY <= cul16VResRegister)
+                    ul17PixelAddr <= { 1'b0, ul16Address - cul16DrawPointInterfaceBaseAddress };
+                    if (ul16ConfigRegister[0] == 1'b1)
                     begin
-                        ul9PosX <= ul16PosX[8:0];
-                        ul9PosY <= ul16PosY[8:0];
-                        ul1Update <= 1'b1;
+                        ul17PixelAddr <= { 1'b0, ul16Address - cul16DrawPointInterfaceBaseAddress } + cul17HalfDisplayBufferAddressOffset;
                     end
+                    ul12Rgb12DataReg[11:8] <= (ul2ByteEnable[1] == 1'b1) ? avs_cmd_writedata[11:8] : ul12Rgb12Data[11:8];
+                    ul12Rgb12DataReg[7:0] <= (ul2ByteEnable[0] == 1'b1) ? avs_cmd_writedata[7:0] : ul12Rgb12Data[7:0];                                      
+                    ul1UpdateReg <= 1'b1;
                 end
             end
+            CovertPixelAddressToPoint(ul17PixelAddr,ul9PosX,ul9PosY);
+            ul12Rgb12Data <= ul12Rgb12DataReg; 
+            ul1Update <= ul1UpdateReg;
         end
     end: p_dpm
-    
-    // DrawPoint master interface front-end
-    always_ff @ (posedge ul1SysClock)
-    begin: p_dpm_out
-        if (ul1SysReset == 1'b1) 
-        begin
-            ul9PosX_o <= 9'h000000000;
-            ul9PosY_o <= 9'h000000000;
-            ul12Rgb12Data_o <= 12'b000000000000;
-            ul1Update_o <= 1'b0;
-        end
-        else 
-        begin
-            ul1Update_o <= 1'b0;
-            if (ul1Update == 1'b1)
-            begin
-                ul9PosX_o <= ul9PosX;
-                ul9PosY_o <= ul9PosY;
-                ul12Rgb12Data_o <= ul12Rgb12Data;
-                ul1Update_o <= 1'b1;
-            end
-        end
-    end: p_dpm_out
     
     assign ul1ReadAddressValid = ul1VersionReadAddressValid | ul1ParamReadAddressValid;
     
@@ -438,13 +444,13 @@ module tMDrawPointMI (
     
     assign coe_dpm_ul1Reset_n = ~ul1SysReset;
     
-    assign coe_dpm_ul1Update = ul1Update_o;  
+    assign coe_dpm_ul1Update = ul1Update;  
     
-    assign coe_dpm_ul9PosX = ul9PosX_o;      
+    assign coe_dpm_ul9PosX = ul9PosX;      
                              
-    assign coe_dpm_ul9PosY = ul9PosY_o;      
+    assign coe_dpm_ul9PosY = ul9PosY;      
     
-    assign coe_dpm_ul12Rgb12Data = ul12Rgb12Data_o;
+    assign coe_dpm_ul12Rgb12Data = ul12Rgb12Data;
     
 endmodule : tMDrawPointMI
 
