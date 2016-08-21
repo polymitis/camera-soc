@@ -1,0 +1,251 @@
+// Project   : Camera FPGA
+// Details   : DrawPoint master interface testbench.
+`ifndef M_DRAWPOINTMI_SVT
+`define M_DRAWPOINTMI_SVT
+
+`include "../I_DrawPoint.sv"
+`include "DrawPointMI_sim/simulation/DrawPointMI_sim.v"
+
+`define TEST
+`include "../M_VgaDriver.sv"
+
+// assert macro
+`define ASSERT(__cond) assert (__cond) else $fatal(2,`"(__cond)`")
+
+// Avalon MM BFM
+import avalon_mm_pkg::*;
+`define AVM_BFM $root.tMDrawPointMI_tb.iDrawPointMI_sim.avm_bfm
+
+// VgaDriver testbench top module
+module tMDrawPointMI_tb;
+    timeunit 1ns;
+    timeprecision 1ps;
+    
+    localparam time SYS_CLOCK_PERIOD = 20ns; // 50 MHz   
+    localparam time PLL_CLOCK_PERIOD = 39.722ns; // 25.175 MHz   
+
+    logic        ul1DpmReset_n;
+    logic        ul1DpmUpdate;
+    logic [8:0]  ul9DpmPosX;
+    logic [8:0]  ul9DpmPosY;
+    logic [11:0] ul12DpmRgb12Data;
+    
+    // System clock
+    bit sb1SysClock;
+    always #(SYS_CLOCK_PERIOD/2) sb1SysClock <= ~sb1SysClock;
+    
+    // Pll clock 
+    bit sb1PllClock;
+    always #(PLL_CLOCK_PERIOD/2) sb1PllClock <= ~sb1PllClock;     
+    
+    // DrawPoint master clock
+    bit sb1DpmClock;
+    
+    // System reset
+    bit ul1SysReset_n; 
+    
+    // VGA output interface
+    tIVgaOut iIVgaOut(sb1PllClock);
+    
+    // DrawPoint master interface
+    tIDrawPoint iIDrawPoint(sb1DpmClock);
+    
+    // DrawPoint master interface simulation model instance
+    DrawPointMI_sim iDrawPointMI_sim 
+    ( // Ports:
+        .clk_clk                           (sb1SysClock),                        
+        .drawpoint_dpm_dpm_ul1reset_n      (ul1DpmReset_n),   
+        .drawpoint_dpm_dpm_ul1update       (ul1DpmUpdate),    
+        .drawpoint_dpm_dpm_ul9posx         (ul9DpmPosX),      
+        .drawpoint_dpm_dpm_ul9posy         (ul9DpmPosY),      
+        .drawpoint_dpm_dpm_ul12rgb12data   (ul12DpmRgb12Data),
+        .drawpoint_dpm_dpm_ul1clock        (sb1DpmClock),     
+        .reset_reset_n                     (ul1SysReset_n) 
+    );
+    
+    assign iIDrawPoint.ul1Reset_n = ul1DpmReset_n;
+    assign iIDrawPoint.ul1Update = ul1DpmUpdate;
+    assign iIDrawPoint.ul9PosX = ul9DpmPosX;
+    assign iIDrawPoint.ul9PosY = ul9DpmPosY;
+    assign iIDrawPoint.ul12Rgb12Data = ul12DpmRgb12Data;
+    
+    // VGA driver
+    tMVgaDriver iMVgaDriver 
+    ( // Ports:
+        .pIVgaOut       (iIVgaOut),
+        .pIDrawPoint    (iIDrawPoint)
+    );
+    
+    tMDrawPointMI_trn iMDrawPointMI_trn
+    ( // Ports:
+        .clk_clk       (sb1SysClock),    
+        .reset_reset_n (ul1SysReset_n),
+        .pIVgaOut      (iIVgaOut)                  
+    );
+    
+endmodule : tMDrawPointMI_tb
+
+// Transactor
+module tMDrawPointMI_trn 
+( // Ports:  
+    input  bit         clk_clk,
+    output bit         reset_reset_n,
+    tIVgaOut.tb_driver pIVgaOut    
+);
+    timeunit 1ns;
+    timeprecision 1ps;
+    
+    default clocking tb_cb @ (posedge clk_clk);
+        output #1 reset_reset_n; 
+    endclocking
+    
+    initial 
+    begin : Main
+        
+        // init all outputs
+        reset_reset_n = 1'b0;
+        
+        // reset draw point interface
+        ##1 tb_cb.reset_reset_n <= 1'b0;
+        ##1 tb_cb.reset_reset_n <= 1'b1;
+        
+        ##10 `AVM_BFM.init();
+        
+        // Read Major version
+        `AVM_BFM.set_command_address(16'h0000);
+        `AVM_BFM.set_command_burst_count(10'b0000000001);
+        `AVM_BFM.set_command_burst_size(10'b0000000001);
+        `AVM_BFM.set_command_byte_enable(2'b11,0);
+        `AVM_BFM.set_command_request(REQ_READ);
+        `AVM_BFM.push_command();
+        
+        ##3 `AVM_BFM.pop_response();
+        a1: `ASSERT(`AVM_BFM.get_response_data(0) == 16'h00FF);
+        
+        // Read Minor version
+        `AVM_BFM.set_command_address(16'h0001);
+        `AVM_BFM.set_command_burst_count(10'b0000000001);
+        `AVM_BFM.set_command_burst_size(10'b0000000001);
+        `AVM_BFM.set_command_byte_enable(2'b11,0);
+        `AVM_BFM.set_command_request(REQ_READ);
+        `AVM_BFM.push_command();
+        
+        ##3 `AVM_BFM.pop_response();
+        a2: `ASSERT(`AVM_BFM.get_response_data(0) == 16'h0000);
+        
+        // Read revision number
+        `AVM_BFM.set_command_address(16'h0002);
+        `AVM_BFM.set_command_burst_count(10'b0000000001);
+        `AVM_BFM.set_command_burst_size(10'b0000000001);
+        `AVM_BFM.set_command_byte_enable(2'b11,0);
+        `AVM_BFM.set_command_request(REQ_READ);
+        `AVM_BFM.push_command();
+        
+        ##3 `AVM_BFM.pop_response();
+        a3: `ASSERT(`AVM_BFM.get_response_data(0) == 16'h0000);
+        
+        // Read build number
+        `AVM_BFM.set_command_address(16'h0003);
+        `AVM_BFM.set_command_burst_count(10'b0000000001);
+        `AVM_BFM.set_command_burst_size(10'b0000000001);
+        `AVM_BFM.set_command_byte_enable(2'b11,0);
+        `AVM_BFM.set_command_request(REQ_READ);
+        `AVM_BFM.push_command();
+        
+        ##3 `AVM_BFM.pop_response();
+        a4: `ASSERT(`AVM_BFM.get_response_data(0) == 16'h0001);
+        
+        // Read burst version Major.Minor.Revision.Build
+        `AVM_BFM.set_command_address(16'h0000);
+        `AVM_BFM.set_command_burst_count(10'b0000000100);
+        `AVM_BFM.set_command_burst_size(10'b0000000100);
+        `AVM_BFM.set_command_byte_enable(2'b11,0);
+        `AVM_BFM.set_command_byte_enable(2'b11,1);
+        `AVM_BFM.set_command_byte_enable(2'b11,2);
+        `AVM_BFM.set_command_byte_enable(2'b11,3);
+        `AVM_BFM.set_command_request(REQ_READ);
+        `AVM_BFM.push_command();
+        
+        ##6 `AVM_BFM.pop_response();
+        a5: `ASSERT(`AVM_BFM.get_response_data(0) == 16'h00FF);
+        a6: `ASSERT(`AVM_BFM.get_response_data(1) == 16'h0000);
+        a7: `ASSERT(`AVM_BFM.get_response_data(2) == 16'h0000);
+        a8: `ASSERT(`AVM_BFM.get_response_data(3) == 16'h0001);
+        
+        // Read burst parameters
+        `AVM_BFM.set_command_address(16'h0004);
+        `AVM_BFM.set_command_burst_count(10'b0000000101);
+        `AVM_BFM.set_command_burst_size(10'b0000000101);
+        `AVM_BFM.set_command_byte_enable(2'b11,0);
+        `AVM_BFM.set_command_byte_enable(2'b11,1);
+        `AVM_BFM.set_command_byte_enable(2'b11,2);
+        `AVM_BFM.set_command_byte_enable(2'b11,3);
+        `AVM_BFM.set_command_byte_enable(2'b11,4);
+        `AVM_BFM.set_command_request(REQ_READ);
+        `AVM_BFM.push_command();
+        
+        ##8 `AVM_BFM.pop_response();
+        a9: `ASSERT(`AVM_BFM.get_response_data(0) == 16'h0000);
+        a10: `ASSERT(`AVM_BFM.get_response_data(1) == 16'd60000);
+        a11: `ASSERT(`AVM_BFM.get_response_data(2) == 16'd320);
+        a12: `ASSERT(`AVM_BFM.get_response_data(3) == 16'd240);
+        a13: `ASSERT(`AVM_BFM.get_response_data(4) == 16'd12);
+        
+        // Write pixels on (0,0) (1,0) (2,0) (3,0) pixels
+        `AVM_BFM.set_command_address(16'h06A00);
+        `AVM_BFM.set_command_burst_count(10'b0000000100);
+        `AVM_BFM.set_command_burst_size(10'b0000000100);
+        `AVM_BFM.set_command_request(REQ_WRITE);
+        `AVM_BFM.set_command_byte_enable(2'b11,0);
+        `AVM_BFM.set_command_byte_enable(2'b11,1);
+        `AVM_BFM.set_command_byte_enable(2'b11,2);
+        `AVM_BFM.set_command_byte_enable(2'b11,3);
+        `AVM_BFM.set_command_data(16'h0F0F,0);
+        `AVM_BFM.set_command_data(16'h0FF0,1);
+        `AVM_BFM.set_command_data(16'h00FF,2);
+        `AVM_BFM.set_command_data(16'h0F0F,3);
+        `AVM_BFM.push_command();
+        
+        ##12; 
+        
+        // Write config parameter
+        `AVM_BFM.set_command_address(16'h0004);
+        `AVM_BFM.set_command_burst_count(10'b0000000001);
+        `AVM_BFM.set_command_burst_size(10'b0000000001);
+        `AVM_BFM.set_command_request(REQ_WRITE);
+        `AVM_BFM.set_command_data(16'h0001,0);
+        `AVM_BFM.push_command();
+        
+        ##3 // Read config parameter
+        `AVM_BFM.set_command_address(16'h0004);
+        `AVM_BFM.set_command_burst_count(10'b0000000001);
+        `AVM_BFM.set_command_burst_size(10'b0000000001);
+        `AVM_BFM.set_command_byte_enable(2'b11,0);
+        `AVM_BFM.set_command_request(REQ_READ);
+        `AVM_BFM.push_command();
+        
+        ##3 `AVM_BFM.pop_response();
+        //a14: `ASSERT(`AVM_BFM.get_response_data(0) == 16'h0001);
+        
+        // Write pixels on (0,120) (1,120) (2,120) (3,120) pixels
+        `AVM_BFM.set_command_address(16'h06A00);
+        `AVM_BFM.set_command_burst_count(10'b0000000100);
+        `AVM_BFM.set_command_burst_size(10'b0000000100);
+        `AVM_BFM.set_command_request(REQ_WRITE);
+        `AVM_BFM.set_command_byte_enable(2'b11,0);
+        `AVM_BFM.set_command_byte_enable(2'b11,1);
+        `AVM_BFM.set_command_byte_enable(2'b11,2);
+        `AVM_BFM.set_command_byte_enable(2'b11,3);
+        `AVM_BFM.set_command_data(16'h0F0F,0);
+        `AVM_BFM.set_command_data(16'h0FF0,1);
+        `AVM_BFM.set_command_data(16'h00FF,2);
+        `AVM_BFM.set_command_data(16'h0F0F,3);
+        `AVM_BFM.push_command();
+        
+        ##20; //$finish; is handled by the simulation script
+        
+    end : Main
+
+endmodule : tMDrawPointMI_trn
+
+`endif//M_DRAWPOINTMI_SVT
