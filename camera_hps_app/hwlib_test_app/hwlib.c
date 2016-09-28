@@ -420,22 +420,26 @@ int main(int argc, char** argv)
         status = socfpga_dma_setup(&channel);
     }
 
-//    if (status == ALT_E_SUCCESS)
-//    {
-//        /* This is the symbol name for the SOF file contents linked in. */
-//        extern char _binary_soc_system_dc_rbf_start;
-//        extern char _binary_soc_system_dc_rbf_end;
-//
-//        /* Use the above symbols to extract the FPGA image information. */
-//        const char *   fpga_image      = &_binary_soc_system_dc_rbf_start;
-//        const uint32_t fpga_image_size = &_binary_soc_system_dc_rbf_end - &_binary_soc_system_dc_rbf_start;
-//
-//        /* Trace the FPGA image information. */
-//        ALT_PRINTF("INFO: FPGA Image binary at %p.\n", fpga_image);
-//        ALT_PRINTF("INFO: FPGA Image size is %" PRIu32 " bytes.\n", fpga_image_size);
-//
-//        status = socfpga_fpga_setup_dma(fpga_image, fpga_image_size, channel);
-//    }
+#if 0
+
+    if (status == ALT_E_SUCCESS)
+    {
+        /* This is the symbol name for the SOF file contents linked in. */
+        extern char _binary_soc_system_dc_rbf_start;
+        extern char _binary_soc_system_dc_rbf_end;
+
+        /* Use the above symbols to extract the FPGA image information. */
+        const char *   fpga_image      = &_binary_soc_system_dc_rbf_start;
+        const uint32_t fpga_image_size = &_binary_soc_system_dc_rbf_end - &_binary_soc_system_dc_rbf_start;
+
+        /* Trace the FPGA image information. */
+        ALT_PRINTF("INFO: FPGA Image binary at %p.\n", fpga_image);
+        ALT_PRINTF("INFO: FPGA Image size is %" PRIu32 " bytes.\n", fpga_image_size);
+
+        status = socfpga_fpga_setup_dma(fpga_image, fpga_image_size, channel);
+    }
+
+#endif
 
     if (status == ALT_E_SUCCESS)
     {

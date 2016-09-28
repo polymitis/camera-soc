@@ -7,7 +7,7 @@ SEMIHOSTING ?= 1
 
 SOCEDS_ROOT ?= $(SOCEDS_DEST_ROOT)
 HWLIBS_ROOT = $(SOCEDS_ROOT)/ip/altera/hps/altera_hps/hwlib
-FPGAPJ_ROOT = /home/pfountas/Projects/camera_fpga_app/PROJECT
+FPGAPJ_ROOT = C:/Users/pfountas/Documents/Projects/pfountas-research/camera_fpga_app/PROJECT
 
 HWLIBS_SRC  := alt_address_space.c alt_bridge_manager.c alt_cache.c alt_clock_manager.c alt_dma.c alt_dma_program.c alt_fpga_manager.c
 APP_SRC     := hwlib.c alt_hps_detect.c

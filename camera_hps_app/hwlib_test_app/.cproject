@@ -23,11 +23,11 @@
 							<tool id="cdt.managedbuild.tool.gnu.cpp.compiler.base.1509519888" name="GCC C++ Compiler" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.base"/>
 							<tool id="cdt.managedbuild.tool.gnu.c.compiler.base.609031077" name="GCC C Compiler" superClass="cdt.managedbuild.tool.gnu.c.compiler.base">
 								<option id="gnu.c.compiler.option.include.paths.1322407990" name="Include paths (-I)" superClass="gnu.c.compiler.option.include.paths" valueType="includePath">
+									<listOptionValue builtIn="false" value="&quot;C:\Users\pfountas\Documents\Projects\pfountas-research\camera_fpga_app\PROJECT\software\include&quot;"/>
 									<listOptionValue builtIn="false" value="${SOCEDS_ROOT}/ip/altera/hps/altera_hps/hwlib/include"/>
 									<listOptionValue builtIn="false" value="${SOCEDS_ROOT}/ip/altera/hps/altera_hps/hwlib/include/${HWLIBS_SOC_FAMILY}"/>
 									<listOptionValue builtIn="false" value="${SOCEDS_ROOT}/host_tools/mentor/gnu/arm/baremetal/arm-altera-eabi/include"/>
 									<listOptionValue builtIn="false" value="${SOCEDS_ROOT}/host_tools/mentor/gnu/arm/baremetal/lib/gcc/arm-altera-eabi/5.2.0/include"/>
-									<listOptionValue builtIn="false" value="/home/pfountas/Projects/camera_fpga_app/PROJECT/software/include"/>
 								</option>
 								<inputType id="cdt.managedbuild.tool.gnu.c.compiler.input.480854066" superClass="cdt.managedbuild.tool.gnu.c.compiler.input"/>
 							</tool>

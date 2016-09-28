@@ -5,47 +5,47 @@
 <stringAttribute key="ANDROID_APP_DIR" value=""/>
 <stringAttribute key="ANDROID_PROCESS_NAME" value=""/>
 <mapAttribute key="AverageDurationTracker">
-<mapEntry key="*Fetching Data Model" value="236580"/>
+<mapEntry key="*Fetching Data Model" value="1644681"/>
 <mapEntry key="*ListDynamicObjects" value="259428"/>
-<mapEntry key="*list global low level symbols" value="653280"/>
-<mapEntry key="*loading values from target" value="3321801"/>
+<mapEntry key="*list global low level symbols" value="5983799"/>
+<mapEntry key="*loading values from target" value="7371096"/>
 <mapEntry key="*updating registers" value="8179028"/>
-<mapEntry key="*updating variables" value="842661"/>
-<mapEntry key="AddEventObserver" value="3738820"/>
+<mapEntry key="*updating variables" value="1968441"/>
+<mapEntry key="AddEventObserver" value="2624316"/>
 <mapEntry key="ClearEngineCaches" value="6516535"/>
 <mapEntry key="Evaluate" value="547191"/>
-<mapEntry key="Retrieving globals list" value="8306730"/>
+<mapEntry key="Retrieving globals list" value="26859564"/>
 <mapEntry key="areCachesAvailable" value="5996121"/>
-<mapEntry key="backtrace" value="10783936"/>
+<mapEntry key="backtrace" value="10127814"/>
 <mapEntry key="break" value="14376670"/>
-<mapEntry key="continue" value="98784095"/>
+<mapEntry key="continue" value="61416076"/>
 <mapEntry key="core" value="5879426"/>
 <mapEntry key="disable" value="28120699"/>
-<mapEntry key="disassemble" value="38878"/>
+<mapEntry key="disassemble" value="1740033"/>
 <mapEntry key="enable" value="994059"/>
 <mapEntry key="evaluate address" value="174153015"/>
 <mapEntry key="get byte order" value="63012792"/>
-<mapEntry key="get capabilities" value="299410"/>
-<mapEntry key="get execution addresss" value="298552"/>
-<mapEntry key="get source lines" value="159088"/>
+<mapEntry key="get capabilities" value="279766"/>
+<mapEntry key="get execution addresss" value="899643"/>
+<mapEntry key="get source lines" value="842834"/>
 <mapEntry key="getValidEncodings" value="3379308"/>
-<mapEntry key="initialize command help" value="29878952"/>
+<mapEntry key="initialize command help" value="61487886"/>
 <mapEntry key="interrupt" value="91755471"/>
-<mapEntry key="list breakpoints" value="1502778"/>
-<mapEntry key="list instruction sets" value="227444"/>
-<mapEntry key="list signals" value="770809"/>
-<mapEntry key="list watchpoints" value="2263685"/>
+<mapEntry key="list breakpoints" value="2898283"/>
+<mapEntry key="list instruction sets" value="971848"/>
+<mapEntry key="list signals" value="1268201"/>
+<mapEntry key="list watchpoints" value="3723786"/>
 <mapEntry key="next" value="169133534"/>
 <mapEntry key="reload-symbol-file" value="176189625"/>
 <mapEntry key="remove" value="82988098"/>
 <mapEntry key="run" value="12941865819"/>
 <mapEntry key="select-frame" value="1356729"/>
-<mapEntry key="set CWD" value="5391811"/>
+<mapEntry key="set CWD" value="8951858"/>
 <mapEntry key="set breakpoint properties" value="11108411"/>
 <mapEntry key="set breakpoint skipmode off" value="929090"/>
 <mapEntry key="set breakpoint skipmode on" value="1258353"/>
-<mapEntry key="source altera_target_check.py" value="97217923"/>
-<mapEntry key="source debug-hosted.ds" value="61686632907"/>
+<mapEntry key="source altera_target_check.py" value="169224238"/>
+<mapEntry key="source debug-hosted.ds" value="44565392716"/>
 <mapEntry key="step" value="639818417"/>
 <mapEntry key="toggleBreakpoint" value="62390702"/>
 </mapAttribute>
@@ -71,11 +71,11 @@
 <listAttribute key="FILES.DOWNLOAD_AND_DEBUG"/>
 <stringAttribute key="FILES.DOWNLOAD_AND_DEBUG.RESOURCES.0.OPTION.ALSO_LOAD_SYMBOLS" value="false"/>
 <stringAttribute key="FILES.DOWNLOAD_AND_DEBUG.RESOURCES.0.OPTION.ON_DEMAND_LOAD" value="true"/>
-<stringAttribute key="FILES.DOWNLOAD_AND_DEBUG.RESOURCES.0.TYPE" value="TARGET_WORKING_DIR"/>
+<stringAttribute key="FILES.DOWNLOAD_AND_DEBUG.RESOURCES.0.TYPE" value="APP_ON_HOST_TO_DOWNLOAD"/>
 <stringAttribute key="FILES.DOWNLOAD_AND_DEBUG.RESOURCES.0.VALUE" value=""/>
 <stringAttribute key="FILES.DOWNLOAD_AND_DEBUG.RESOURCES.1.OPTION.ALSO_LOAD_SYMBOLS" value="false"/>
 <stringAttribute key="FILES.DOWNLOAD_AND_DEBUG.RESOURCES.1.OPTION.ON_DEMAND_LOAD" value="true"/>
-<stringAttribute key="FILES.DOWNLOAD_AND_DEBUG.RESOURCES.1.TYPE" value="APP_ON_HOST_TO_DOWNLOAD"/>
+<stringAttribute key="FILES.DOWNLOAD_AND_DEBUG.RESOURCES.1.TYPE" value="TARGET_WORKING_DIR"/>
 <stringAttribute key="FILES.DOWNLOAD_AND_DEBUG.RESOURCES.1.VALUE" value=""/>
 <stringAttribute key="FILES.DOWNLOAD_AND_DEBUG.RESOURCES.2.OPTION.ALSO_LOAD_SYMBOLS" value="false"/>
 <stringAttribute key="FILES.DOWNLOAD_AND_DEBUG.RESOURCES.2.OPTION.ON_DEMAND_LOAD" value="true"/>
@@ -85,11 +85,11 @@
 <listAttribute key="FILES.DOWNLOAD_DEBUG"/>
 <stringAttribute key="FILES.DOWNLOAD_DEBUG.RESOURCES.0.OPTION.ALSO_LOAD_SYMBOLS" value="false"/>
 <stringAttribute key="FILES.DOWNLOAD_DEBUG.RESOURCES.0.OPTION.ON_DEMAND_LOAD" value="true"/>
-<stringAttribute key="FILES.DOWNLOAD_DEBUG.RESOURCES.0.TYPE" value="TARGET_WORKING_DIR"/>
+<stringAttribute key="FILES.DOWNLOAD_DEBUG.RESOURCES.0.TYPE" value="APP_ON_HOST_TO_DOWNLOAD"/>
 <stringAttribute key="FILES.DOWNLOAD_DEBUG.RESOURCES.0.VALUE" value=""/>
 <stringAttribute key="FILES.DOWNLOAD_DEBUG.RESOURCES.1.OPTION.ALSO_LOAD_SYMBOLS" value="false"/>
 <stringAttribute key="FILES.DOWNLOAD_DEBUG.RESOURCES.1.OPTION.ON_DEMAND_LOAD" value="true"/>
-<stringAttribute key="FILES.DOWNLOAD_DEBUG.RESOURCES.1.TYPE" value="APP_ON_HOST_TO_DOWNLOAD"/>
+<stringAttribute key="FILES.DOWNLOAD_DEBUG.RESOURCES.1.TYPE" value="TARGET_WORKING_DIR"/>
 <stringAttribute key="FILES.DOWNLOAD_DEBUG.RESOURCES.1.VALUE" value=""/>
 <stringAttribute key="FILES.DOWNLOAD_DEBUG.RESOURCES.2.OPTION.ALSO_LOAD_SYMBOLS" value="false"/>
 <stringAttribute key="FILES.DOWNLOAD_DEBUG.RESOURCES.2.OPTION.ON_DEMAND_LOAD" value="true"/>
@@ -211,7 +211,7 @@
 <stringAttribute key="rddi_type" value="rddi-debug-rvi"/>
 <booleanAttribute key="runAfterConnect" value="false"/>
 <stringAttribute key="runScriptAfterConnect" value="${workspace_loc:/hwlib_test_app/debug-hosted.ds}"/>
-<stringAttribute key="rvi_address" value="DE-SoC on localhost [1-2]:DE-SoC 1-2"/>
+<stringAttribute key="rvi_address" value="DE-SoC on localhost [USB-1]:DE-SoC USB-1"/>
 <listAttribute key="setup">
 <listEntry value="CDB://../../../Scripts/altera_debug_server.py"/>
 <listEntry value="CDB://rddi-dap_cfg-altera.txt rddi-dap_altera"/>
