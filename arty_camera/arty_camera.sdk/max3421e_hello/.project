@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <projectDescription>
 	<name>max3421e_hello</name>
-	<comment>Created by SDK v2016.3. max3421e_hello_bsp - microblaze_0</comment>
+	<comment></comment>
 	<projects>
 		<project>max3421e_hello_bsp</project>
+		<project>system_standalone_bsp_1</project>
 	</projects>
 	<buildSpec>
 		<buildCommand>

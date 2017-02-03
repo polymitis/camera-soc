@@ -3,8 +3,8 @@
 // Tool Version: Vivado v.2016.3 (win64) Build 1682563 Mon Oct 10 19:07:27 MDT 2016
 // Date        : Thu Jan 26 21:32:32 2017
 // Host        : PFOUNTAS-MSW1064 running 64-bit major release  (build 9200)
-// Command     : write_verilog -force -mode funcsim
-//               c:/Users/pfountas/Documents/Projects/pfountas-research/arty_camera/arty_camera.srcs/sources_1/bd/system/ip/system_clk_wiz_0_1/system_clk_wiz_0_1_sim_netlist.v
+// Command     : write_verilog -force -mode funcsim -rename_top system_clk_wiz_0_1 -prefix
+//               system_clk_wiz_0_1_ system_clk_wiz_0_1_sim_netlist.v
 // Design      : system_clk_wiz_0_1
 // Purpose     : This verilog netlist is a functional simulation representation of the design and should not be modified
 //               or synthesized. This netlist cannot be used for SDF annotated simulation.
@@ -43,7 +43,6 @@ module system_clk_wiz_0_1
         .resetn(resetn));
 endmodule
 
-(* ORIG_REF_NAME = "system_clk_wiz_0_1_clk_wiz" *) 
 module system_clk_wiz_0_1_system_clk_wiz_0_1_clk_wiz
    (clk_out1,
     clk_out2,

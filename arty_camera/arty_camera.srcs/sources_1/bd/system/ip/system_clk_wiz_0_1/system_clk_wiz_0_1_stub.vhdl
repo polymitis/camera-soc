@@ -3,8 +3,8 @@
 -- Tool Version: Vivado v.2016.3 (win64) Build 1682563 Mon Oct 10 19:07:27 MDT 2016
 -- Date        : Thu Jan 26 21:32:32 2017
 -- Host        : PFOUNTAS-MSW1064 running 64-bit major release  (build 9200)
--- Command     : write_vhdl -force -mode synth_stub
---               c:/Users/pfountas/Documents/Projects/pfountas-research/arty_camera/arty_camera.srcs/sources_1/bd/system/ip/system_clk_wiz_0_1/system_clk_wiz_0_1_stub.vhdl
+-- Command     : write_vhdl -force -mode synth_stub -rename_top system_clk_wiz_0_1 -prefix
+--               system_clk_wiz_0_1_ system_clk_wiz_0_1_stub.vhdl
 -- Design      : system_clk_wiz_0_1
 -- Purpose     : Stub declaration of top-level module interface
 -- Device      : xc7a35ticsg324-1L
