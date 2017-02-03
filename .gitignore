@@ -257,6 +257,7 @@ work/
 
 #Eclipse
 *.metadata
+*.settings
 *.o
 
 
