@@ -250,3 +250,14 @@ synopsys/
 work/
 *.wlf
 *.Lnk
+
+#Vivado
+*.runs/
+*.cache/
+
+#Eclipse
+*.metadata
+*.settings
+*.o
+
+
