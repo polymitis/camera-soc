@@ -6,6 +6,8 @@ Camera System on Chip implemented on the following platforms:
 
 ## Terrasic DE1-SoC revD platform
 
+This is currently developed in camera-soc/de1soc_camera
+
 ## Digilent ARTY Artix-7 platform
 
 This is currently developed in camera-soc/arty_camera
